@@ -54,7 +54,6 @@ func UpdateDestination(c *gin.Context) {
 	}
 
 	updateField(&destination.Name, "namedestination")
-	updateField(&destination.Location, "location")
 	updateField(&destination.Description, "description")
 	updateField(&destination.Do, "do")
 	updateField(&destination.Dont, "dont")
@@ -66,20 +65,6 @@ func UpdateDestination(c *gin.Context) {
 		if n, err := strconv.Atoi(v); err == nil {
 			destination.SosID = uint(n)
 			changed["sosId"] = n
-		}
-	}
-
-	if v := c.PostForm("longitude"); v != "" {
-		if f, err := strconv.ParseFloat(v, 64); err == nil {
-			destination.Longitude = f
-			changed["longitude"] = f
-		}
-	}
-
-	if v := c.PostForm("latitude"); v != "" {
-		if f, err := strconv.ParseFloat(v, 64); err == nil {
-			destination.Latitude = f
-			changed["latitude"] = f
 		}
 	}
 
@@ -128,7 +113,6 @@ func UpdateDestination(c *gin.Context) {
 					openFile.Close()
 
 					newBase64 := base64.StdEncoding.EncodeToString(rawBytes)
-
 
 					if newBase64 != oldImages[index] {
 						oldImages[index] = newBase64

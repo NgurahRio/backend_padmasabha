@@ -107,6 +107,8 @@ header>span:first-child{font-size:19px}
 .table-wrap th{height:52px;white-space:normal}
 .table-wrap td{height:62px}
 .table-wrap th:first-child,.table-wrap td:first-child{padding-left:18px;min-width:170px}
+.table-wrap th.number-column,.table-wrap td.number-column{width:64px;min-width:64px;padding-left:18px;padding-right:8px;text-align:center;color:#707767;font-variant-numeric:tabular-nums}
+.table-wrap th.number-column,.table-wrap td.number-column{border-right:1px solid #e7e5dc}
 .table-wrap th:last-child,.table-wrap td:last-child{width:260px;min-width:260px;padding-right:16px}
 .table-wrap td:nth-last-child(2){min-width:300px;max-width:620px;white-space:normal;overflow-wrap:anywhere}
 .actions{width:100%;justify-content:flex-end;align-items:center}
@@ -131,3 +133,45 @@ header>span:first-child{color:#34402d}
 .admin-profile{padding:5px 6px 5px 13px;border:1px solid #dfe3d8;border-radius:12px;background:#fff;box-shadow:0 2px 7px #2730200a}
 .admin-profile>span{color:#586052}.admin-profile b{color:#303a29}
 .admin-profile i{background:#eef1e7;border-color:#d6dccd;color:#59664b}
+
+/* Complete destination editor */
+.editor{padding:24px;border-radius:14px}
+.editor-head{align-items:center;margin-bottom:22px}.editor-head h3{margin:0;font-size:20px}
+.form-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 20px}
+.form-grid label{gap:8px;color:#3d4638;font-size:12px;font-weight:700}
+.form-grid input,.form-grid textarea,.form-grid select{width:100%;min-height:44px;border:1px solid #d8dbd2;border-radius:9px;background:#fff;color:#293024;padding:10px 12px;outline:none;transition:border-color .18s,box-shadow .18s}
+.form-grid input:focus,.form-grid textarea:focus,.form-grid select:focus{border-color:#7b865d;box-shadow:0 0 0 3px #69754e1c}
+.form-grid textarea{min-height:108px;line-height:1.5}
+.form-grid label:has(textarea),.form-grid label:has(input[type="file"]){grid-column:1/-1}
+.form-grid input[type="file"]{height:auto;min-height:48px;padding:10px;background:#f8f9f5;border:1px dashed #bfc5b7;cursor:pointer}
+.form-grid .multi-select{min-height:116px;padding:6px}.form-grid .multi-select option{padding:8px 10px;border-radius:6px}.form-grid .multi-select option:checked{background:#69754e linear-gradient(0deg,#69754e,#69754e);color:#fff}
+.field-help{color:#858b7d;font-size:11px;font-weight:400;line-height:1.4}
+.form-grid .save{grid-column:1/-1;min-height:48px;margin-top:4px}
+@media(max-width:760px){.editor{padding:18px}.form-grid{grid-template-columns:1fr;gap:15px}.form-grid label{grid-column:1!important}}
+
+/* Facility image multi-select */
+.editor,.form-grid,.form-grid label{overflow:visible}
+.facility-picker,.sos-picker{position:relative;font-weight:400}
+.facility-trigger,.sos-trigger{width:100%;min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 13px;border:1px solid #d8dbd2;border-radius:10px;background:#fff;color:#3d4638;text-align:left;cursor:pointer;transition:border-color .18s,background .18s,box-shadow .18s}
+.facility-trigger:hover,.sos-trigger:hover{border-color:#9da78e;background:#fbfcf9}
+.facility-trigger:focus-visible,.sos-trigger:focus-visible,.facility-trigger.open,.sos-trigger.open{outline:0;border-color:#69754e;box-shadow:0 0 0 3px #69754e1b}
+.facility-chevron,.picker-chevron{flex:none;font-size:18px;line-height:1;color:#727a69;transition:transform .18s ease}
+.facility-trigger.open .facility-chevron,.sos-trigger.open .picker-chevron{transform:rotate(180deg)}
+.selected-facilities{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+.facility-chip{display:inline-flex;align-items:center;gap:7px;min-height:34px;padding:5px 10px 5px 6px;border:1px solid #dfe3d8;border-radius:18px;background:#f2f4ed;color:#48523f;font-size:12px;font-weight:600}
+.facility-chip img,.facility-chip>.ui-icon{width:24px;height:24px;border-radius:50%;object-fit:cover;background:#fff;padding:2px}
+.facility-dropdown,.sos-dropdown{position:absolute;z-index:60;top:calc(100% + 7px);bottom:auto;left:0;width:100%;min-width:300px;padding:8px;border:1px solid #d9ded2;border-radius:11px;background:#fff;box-shadow:0 16px 38px #1b24172b}
+.facility-options{display:flex;flex-direction:column;gap:4px;max-height:260px;overflow:auto;padding:2px}
+.facility-option{display:grid!important;grid-template-columns:20px 36px 1fr 22px;align-items:center;gap:9px;padding:8px!important;border-radius:8px;color:#3c4536!important;font-weight:500!important;cursor:pointer}
+.facility-option:hover,.facility-option.selected{background:#eef1e7}.facility-option input{width:16px!important;height:16px!important;min-height:0!important;margin:0;accent-color:#657047}
+.facility-option img,.facility-placeholder{display:grid;place-items:center;width:34px;height:34px;border:1px solid #e1e4dc;border-radius:8px;object-fit:cover;background:#fff}.facility-placeholder .ui-icon{width:17px;height:17px}.facility-option i{color:#657047;font-style:normal;font-weight:800}
+.facility-picker-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:8px;padding-top:8px;border-top:1px solid #eceee8}.facility-picker-actions button{min-width:76px;height:34px;border:0;border-radius:7px;background:#edf0e8;color:#4e5844;font-weight:700}.facility-picker-actions .confirm{background:#657047;color:#fff}.facility-picker-actions .confirm:disabled{opacity:.5;cursor:not-allowed}.facility-empty{margin:14px;text-align:center;color:#858b7d;font-size:12px}
+.form-grid label:has(.facility-trigger.open),.form-grid label:has(.sos-trigger.open){position:relative;z-index:50}
+.sos-trigger>span:first-child{display:flex;min-width:0;flex-direction:column;gap:2px}
+.sos-trigger b{overflow:hidden;color:#30382b;font-size:13px;text-overflow:ellipsis;white-space:nowrap}
+.sos-trigger small{overflow:hidden;color:#858b7d;font-size:11px;font-weight:500;text-overflow:ellipsis;white-space:nowrap}
+.picker-placeholder{color:#8c9286;font-weight:500}
+.sos-options{display:flex;max-height:260px;flex-direction:column;gap:4px;overflow-y:auto}
+.sos-option{width:100%;display:grid;grid-template-columns:minmax(0,1fr) 20px;align-items:center;gap:10px;padding:10px 12px;border:0;border-radius:8px;background:transparent;color:#333c2e;text-align:left;cursor:pointer}
+.sos-option:hover,.sos-option.selected{background:#eef1e7}
+.sos-option>span:first-child{display:flex;min-width:0;flex-direction:column;gap:2px}.sos-option b,.sos-option small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sos-option b{font-size:12px}.sos-option small{color:#7d8575;font-size:10px}.sos-option i{color:#657047;font-style:normal;font-weight:800}

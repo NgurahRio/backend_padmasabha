@@ -24,15 +24,12 @@ func CreateDestination(c *gin.Context) {
 	}
 
 	name := c.PostForm("namedestination")
-	location := c.PostForm("location")
 	description := c.PostForm("description")
 	do := c.PostForm("do")
 	dont := c.PostForm("dont")
 	safety := c.PostForm("safety")
 	maps := c.PostForm("maps")
 	sosID, _ := strconv.Atoi(c.PostForm("sosId"))
-	longitude, _ := strconv.ParseFloat(c.PostForm("longitude"), 64)
-	latitude, _ := strconv.ParseFloat(c.PostForm("latitude"), 64)
 	operational := c.PostForm("operational")
 
 	rawFacility := c.PostForm("facilityId")
@@ -108,7 +105,6 @@ func CreateDestination(c *gin.Context) {
 	destination := models.Destination{
 		SubcategoryID: rawSubcategory,
 		Name:          name,
-		Location:      location,
 		Description:   description,
 		Imagedata:     imageBase64,
 		Do:            do,
@@ -117,8 +113,6 @@ func CreateDestination(c *gin.Context) {
 		Maps:          maps,
 		SosID:         uint(sosID),
 		FacilityID:    rawFacility,
-		Longitude:     longitude,
-		Latitude:      latitude,
 		Operational:   operational,
 		CreatedAt:     time.Now().Format("2006-01-02 15:04:05"),
 		UpdatedAt:     time.Now().Format("2006-01-02 15:04:05"),
@@ -206,7 +200,6 @@ func CreateDestination(c *gin.Context) {
 			"destination": gin.H{
 				"id_destination":  destination.ID,
 				"namedestination": destination.Name,
-				"location":        destination.Location,
 				"description":     destination.Description,
 				"images":          imagesBase64,
 				"do":              destination.Do,
@@ -218,8 +211,6 @@ func CreateDestination(c *gin.Context) {
 				"subcategoryId":   destination.SubcategoryID,
 				"subcategory":     subResp,
 				"operational":     destination.Operational,
-				"longitude":       destination.Longitude,
-				"latitude":        destination.Latitude,
 				"created_at":      destination.CreatedAt,
 				"updated_at":      destination.UpdatedAt,
 				"facilities":      facilityResp,

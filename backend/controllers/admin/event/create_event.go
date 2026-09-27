@@ -25,9 +25,6 @@ func CreateEvent(c *gin.Context) {
 	doField := c.PostForm("do")
 	dontField := c.PostForm("dont")
 	safety := c.PostForm("safety")
-	location := c.PostForm("location")
-	longitudeStr := c.PostForm("longitude")
-	latitudeStr := c.PostForm("latitude")
 
 	if nameEvent == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -61,30 +58,6 @@ func CreateEvent(c *gin.Context) {
 	var price float64 = 0
 	if priceStr != "" {
 		price, _ = strconv.ParseFloat(priceStr, 64)
-	}
-
-	var longitude *float64
-	if longitudeStr != "" {
-		parsedLongitude, convErr := strconv.ParseFloat(longitudeStr, 64)
-		if convErr != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"message": "longitude harus angka",
-			})
-			return
-		}
-		longitude = &parsedLongitude
-	}
-
-	var latitude *float64
-	if latitudeStr != "" {
-		parsedLatitude, convErr := strconv.ParseFloat(latitudeStr, 64)
-		if convErr != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"message": "latitude harus angka",
-			})
-			return
-		}
-		latitude = &parsedLatitude
 	}
 
 	imagesBase64 := []string{}
@@ -132,9 +105,6 @@ func CreateEvent(c *gin.Context) {
 		Do:          doField,
 		Dont:        dontField,
 		Safety:      safety,
-		Location:    location,
-		Longitude:   longitude,
-		Latitude:    latitude,
 		ImageEvent:  imageBase64,
 	}
 

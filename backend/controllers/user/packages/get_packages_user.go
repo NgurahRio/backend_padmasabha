@@ -129,12 +129,11 @@ func GetAllPackagesUser(c *gin.Context) {
 		}
 
 		result = append(result, gin.H{
-			"id_packages":     pkg.ID,
-			"destinationId":   pkg.DestinationID,
+			"id_packages":   pkg.ID,
+			"destinationId": pkg.DestinationID,
 			"destination": gin.H{
 				"id_destination":  pkg.Destination.ID,
 				"namedestination": pkg.Destination.Name,
-				"location":        pkg.Destination.Location,
 				"description":     pkg.Destination.Description,
 			},
 			"subpackage_data": data,
@@ -206,12 +205,11 @@ func GetPackageByDestinationIDUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Berhasil mengambil data package",
 		"data": gin.H{
-			"id_packages":     pkg.ID,
-			"destinationId":   pkg.DestinationID,
+			"id_packages":   pkg.ID,
+			"destinationId": pkg.DestinationID,
 			"destination": gin.H{
 				"id_destination":  pkg.Destination.ID,
 				"namedestination": pkg.Destination.Name,
-				"location":        pkg.Destination.Location,
 				"description":     pkg.Destination.Description,
 			},
 			"subpackage_data": subData,

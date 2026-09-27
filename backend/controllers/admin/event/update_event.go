@@ -61,7 +61,6 @@ func UpdateEvent(c *gin.Context) {
 		"do":          &event.Do,
 		"dont":        &event.Dont,
 		"safety":      &event.Safety,
-		"location":    &event.Location,
 	}
 
 	for key, field := range stringFields {
@@ -75,34 +74,6 @@ func UpdateEvent(c *gin.Context) {
 		if price, err := strconv.ParseFloat(priceStr, 64); err == nil {
 			event.Price = price
 			updated["price"] = price
-		}
-	}
-
-	if lonStr, provided := c.GetPostForm("longitude"); provided {
-		lonStr = strings.TrimSpace(lonStr)
-		if lonStr == "" || strings.EqualFold(lonStr, "null") {
-			event.Longitude = nil
-			updated["longitude"] = nil
-		} else if lon, err := strconv.ParseFloat(lonStr, 64); err == nil {
-			event.Longitude = &lon
-			updated["longitude"] = lon
-		} else {
-			c.JSON(http.StatusBadRequest, gin.H{"message": "longitude harus angka"})
-			return
-		}
-	}
-
-	if latStr, provided := c.GetPostForm("latitude"); provided {
-		latStr = strings.TrimSpace(latStr)
-		if latStr == "" || strings.EqualFold(latStr, "null") {
-			event.Latitude = nil
-			updated["latitude"] = nil
-		} else if lat, err := strconv.ParseFloat(latStr, 64); err == nil {
-			event.Latitude = &lat
-			updated["latitude"] = lat
-		} else {
-			c.JSON(http.StatusBadRequest, gin.H{"message": "latitude harus angka"})
-			return
 		}
 	}
 
