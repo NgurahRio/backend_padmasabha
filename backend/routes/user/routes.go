@@ -6,7 +6,6 @@ import (
 	"backend/controllers/user/destination"
 	"backend/controllers/user/event"
 	"backend/controllers/user/packages"
-	"backend/controllers/user/review"
 	"backend/controllers/user/subcategory"
 	"backend/controllers/user/subpackage"
 	"backend/middleware"
@@ -38,8 +37,6 @@ func SetupUserRoutes(r *gin.Engine) {
 	r.GET("/subpackage", subpackage.GetAllSubpackagesUser)
 	r.GET("/subpackage/:id", subpackage.GetSubpackageByIDUser)
 
-	r.GET("/review", review.GetReviews)
-
 	user := r.Group("/user",
 		middleware.JWTAuthMiddleware(),
 		middleware.RoleOnly(1),
@@ -48,9 +45,6 @@ func SetupUserRoutes(r *gin.Engine) {
 	user.GET("/profile", auth.GetProfile)
 	user.PUT("/profile", auth.UpdateProfile)
 	user.DELETE("/profile", auth.DeleteProfile)
-
-	user.POST("/review", review.AddReview)
-	user.DELETE("/review/:id", review.DeleteReview)
 
 	user.POST("/logout", auth.LogoutUser)
 }

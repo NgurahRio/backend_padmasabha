@@ -8,7 +8,6 @@ import (
 	"backend/controllers/admin/facility"
 
 	packagess "backend/controllers/admin/packages"
-	"backend/controllers/admin/review"
 	"backend/controllers/admin/sos"
 	"backend/controllers/admin/subcategory"
 	"backend/controllers/admin/subpackage"
@@ -84,11 +83,6 @@ func SetupRouter() *gin.Engine {
 		admin.GET("/destination/:id", destination.GetDestinationByID)
 		admin.PUT("/destination/:id", destination.UpdateDestination)
 		admin.DELETE("/destination/:id", destination.DeleteDestination)
-
-		//review routes
-		admin.GET("/review", review.GetAllReview)
-		admin.GET("/review/:id", review.GetReviewByID)
-		admin.DELETE("/review/:id", review.DeleteReview)
 
 		// Event routes
 		admin.POST("/event", event.CreateEvent)
