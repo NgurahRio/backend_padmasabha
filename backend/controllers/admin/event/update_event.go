@@ -8,7 +8,6 @@ import (
 	"io"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -26,30 +25,6 @@ func UpdateEvent(c *gin.Context) {
 
 	updated := gin.H{}
 
-	if destStr, provided := c.GetPostForm("villaId"); provided {
-		destStr = strings.TrimSpace(destStr)
-		if destStr == "" || strings.EqualFold(destStr, "null") {
-			event.VillaID = nil
-			updated["villaId"] = nil
-		} else if destInt, err := strconv.Atoi(destStr); err == nil && destInt >= 0 {
-
-			var destCheck models.Villa
-			if err := config.DB.First(&destCheck, "id_villa = ?", destInt).Error; err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{
-					"message": "villaId tidak ditemukan di database",
-				})
-				return
-			}
-
-			tmp := uint(destInt)
-			event.VillaID = &tmp
-			updated["villaId"] = destInt
-		} else {
-			c.JSON(http.StatusBadRequest, gin.H{"message": "villaId tidak valid"})
-			return
-		}
-	}
-
 	stringFields := map[string]*string{
 		"nameevent":   &event.Name,
 		"start_date":  &event.StartDate,
@@ -57,10 +32,6 @@ func UpdateEvent(c *gin.Context) {
 		"description": &event.Description,
 		"start_time":  &event.StartTime,
 		"end_time":    &event.EndTime,
-		"maps":        &event.Maps,
-		"do":          &event.Do,
-		"dont":        &event.Dont,
-		"safety":      &event.Safety,
 	}
 
 	for key, field := range stringFields {

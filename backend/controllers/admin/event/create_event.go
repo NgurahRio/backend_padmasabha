@@ -13,7 +13,6 @@ import (
 )
 
 func CreateEvent(c *gin.Context) {
-	villaIDStr := c.PostForm("villaId")
 	nameEvent := c.PostForm("nameevent")
 	startDate := c.PostForm("start_date")
 	endDate := c.PostForm("end_date")
@@ -21,38 +20,12 @@ func CreateEvent(c *gin.Context) {
 	startTime := c.PostForm("start_time")
 	endTime := c.PostForm("end_time")
 	priceStr := c.PostForm("price")
-	maps := c.PostForm("maps")
-	doField := c.PostForm("do")
-	dontField := c.PostForm("dont")
-	safety := c.PostForm("safety")
 
 	if nameEvent == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "nameevent wajib diisi",
 		})
 		return
-	}
-
-	var destIDPointer *uint = nil
-	if villaIDStr != "" {
-		dID, convErr := strconv.Atoi(villaIDStr)
-		if convErr != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"message": "villaId harus angka",
-			})
-			return
-		}
-
-		var destCheck models.Villa
-		if err := config.DB.First(&destCheck, "id_villa = ?", dID).Error; err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"message": "villaId tidak ditemukan di database",
-			})
-			return
-		}
-
-		tmp := uint(dID)
-		destIDPointer = &tmp
 	}
 
 	var price float64 = 0
@@ -101,15 +74,7 @@ func CreateEvent(c *gin.Context) {
 		StartTime:   startTime,
 		EndTime:     endTime,
 		Price:       price,
-		Maps:        maps,
-		Do:          doField,
-		Dont:        dontField,
-		Safety:      safety,
 		ImageEvent:  imageBase64,
-	}
-
-	if destIDPointer != nil {
-		event.VillaID = destIDPointer
 	}
 
 	if err := config.DB.Create(&event).Error; err != nil {
@@ -117,15 +82,6 @@ func CreateEvent(c *gin.Context) {
 			"message": "Gagal menambahkan event",
 		})
 		return
-	}
-
-	if event.VillaID != nil {
-		if err := config.DB.Preload("Villa").First(&event, event.ID).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"message": "Gagal memuat data villa",
-			})
-			return
-		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{

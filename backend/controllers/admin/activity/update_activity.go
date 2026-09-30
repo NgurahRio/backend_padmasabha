@@ -55,10 +55,6 @@ func UpdateActivity(c *gin.Context) {
 
 	updateField(&activity.Name, "nameactivity")
 	updateField(&activity.Description, "description")
-	updateField(&activity.Do, "do")
-	updateField(&activity.Dont, "dont")
-	updateField(&activity.Safety, "safety")
-	updateField(&activity.Maps, "maps")
 	updateField(&activity.Operational, "operational")
 
 	if v := c.PostForm("facilityId"); v != "" {

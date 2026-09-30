@@ -37,7 +37,7 @@ func normalizeImages(data string) []string {
 func GetAllVillas(c *gin.Context) {
 
 	var villas []models.Villa
-	if err := config.DB.Preload("Sos").Find(&villas).Error; err != nil {
+	if err := config.DB.Find(&villas).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Gagal mengambil data villa",
 		})
@@ -106,20 +106,9 @@ func GetAllVillas(c *gin.Context) {
 			"namevilla":     d.Name,
 			"description":   d.Description,
 			"images":        images,
-			"do":            d.Do,
-			"dont":          d.Dont,
-			"safety":        d.Safety,
 			"operational":   d.Operational,
-			"maps":          d.Maps,
 			"facilityId":    d.FacilityID,
 			"facilities":    facilityResp,
-			"sosId":         d.SosID,
-			"sos": gin.H{
-				"id_sos":     d.Sos.ID,
-				"name_sos":   d.Sos.Name,
-				"alamat_sos": d.Sos.Alamat,
-				"telepon":    d.Sos.Telepon,
-			},
 		})
 	}
 
@@ -133,7 +122,7 @@ func GetVillaByID(c *gin.Context) {
 	id := c.Param("id")
 
 	var d models.Villa
-	if err := config.DB.Preload("Sos").First(&d, "id_villa = ?", id).Error; err != nil {
+	if err := config.DB.First(&d, "id_villa = ?", id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"message": "Villa tidak ditemukan",
 		})
@@ -201,20 +190,9 @@ func GetVillaByID(c *gin.Context) {
 			"namevilla":     d.Name,
 			"description":   d.Description,
 			"images":        images,
-			"do":            d.Do,
-			"dont":          d.Dont,
-			"safety":        d.Safety,
 			"operational":   d.Operational,
-			"maps":          d.Maps,
 			"facilityId":    d.FacilityID,
 			"facilities":    facilityResp,
-			"sosId":         d.SosID,
-			"sos": gin.H{
-				"id_sos":     d.Sos.ID,
-				"name_sos":   d.Sos.Name,
-				"alamat_sos": d.Sos.Alamat,
-				"telepon":    d.Sos.Telepon,
-			},
 		},
 	})
 }

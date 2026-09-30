@@ -55,18 +55,7 @@ func UpdateVilla(c *gin.Context) {
 
 	updateField(&villa.Name, "namevilla")
 	updateField(&villa.Description, "description")
-	updateField(&villa.Do, "do")
-	updateField(&villa.Dont, "dont")
-	updateField(&villa.Safety, "safety")
-	updateField(&villa.Maps, "maps")
 	updateField(&villa.Operational, "operational")
-
-	if v := c.PostForm("sosId"); v != "" {
-		if n, err := strconv.Atoi(v); err == nil {
-			villa.SosID = uint(n)
-			changed["sosId"] = n
-		}
-	}
 
 	if v := c.PostForm("facilityId"); v != "" {
 

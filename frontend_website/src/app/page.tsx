@@ -3,19 +3,19 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { api, idOf, unwrap } from "@/lib/api";
 const nav = [
   ["overview", "Overview"],
-  ["package", "Packages"],
+  ["facility", "Facilities"],
   ["category", "Categories"],
   ["subcategory", "Sub Categories"],
-  ["user", "Users"],
-  ["sos", "SOS"],
+  ["package", "Packages"],
   ["subpackage", "Sub Packages"],
+  ["sos", "SOS"],
+  ["user", "Users"],
 ];
 const destinationNav = [
   ["villa", "Villas"],
   ["activity", "Activities"],
   ["restaurant", "Restaurants"],
   ["event", "Events"],
-  ["facility", "Facilities"],
 ];
 export default function Page() {
   const [ready, setReady] = useState(false),
@@ -965,7 +965,7 @@ function ResourcePage({ config }: { config: ResourceConfig }) {
     [editing, setEditing] = useState<any>(null),
     [show, setShow] = useState(false),
     [detail, setDetail] = useState<any>(null);
-  const usesPopupEditor = ["/admin/villa", "/admin/activity", "/admin/restaurant"].includes(config.path);
+  const usesPopupEditor = ["/admin/villa", "/admin/activity", "/admin/restaurant", "/admin/event", "/admin/facility", "/admin/sos", "/admin/packages", "/admin/subpackage"].includes(config.path);
   const filtered = useMemo(
     () =>
       data.rows.filter((r) =>
@@ -1017,7 +1017,7 @@ function ResourcePage({ config }: { config: ResourceConfig }) {
       </div>
       {show && (
         usesPopupEditor ? (
-          <div className="modal resource-editor-overlay" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget) setShow(false); }}>
+          <div className={`modal resource-editor-overlay${config.path === "/admin/facility" ? " facility-editor-overlay" : config.path === "/admin/sos" ? " sos-editor-overlay" : config.path === "/admin/subpackage" ? " subpackage-editor-overlay" : config.path === "/admin/packages" ? " packages-editor-overlay" : config.path === "/admin/restaurant" ? " restaurant-editor-overlay" : config.path === "/admin/activity" ? " activity-editor-overlay" : config.path === "/admin/villa" ? " villa-editor-overlay" : ""}`} role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget) setShow(false); }}>
             <Editor config={config} value={editing} onClose={() => setShow(false)} onSaved={() => { setShow(false); data.load(); }} />
           </div>
         ) : (
@@ -1109,86 +1109,69 @@ function Editor({
 }) {
   const type = config.path.split("/").pop()!;
   const [facilityOptions, setFacilityOptions] = useState<any[]>([]),
-    [sosOptions, setSOSOptions] = useState<any[]>([]),
     [subcategoryOptions, setSubcategoryOptions] = useState<any[]>([]),
-    [villaOptions, setVillaOptions] = useState<any[]>([]);
+    [villaOptions, setVillaOptions] = useState<any[]>([]),
+    [subpackageOptions, setSubpackageOptions] = useState<any[]>([]);
   useEffect(() => {
     if (["villa", "activity", "restaurant"].includes(type)) {
       Promise.all([
         api("/admin/facility"),
-        api("/admin/sos"),
         api("/admin/subcategory"),
       ])
-        .then(([facilities, sos, subcategories]) => {
+        .then(([facilities, subcategories]) => {
           setFacilityOptions(unwrap(facilities));
-          setSOSOptions(unwrap(sos));
           setSubcategoryOptions(unwrap(subcategories));
         })
         .catch(() => {});
     }
-    if (type === "event") {
-      api("/admin/villa")
-        .then((data) => setVillaOptions(unwrap(data)))
+    if (type === "packages") {
+      Promise.all([api("/admin/villa"), api("/admin/subpackage")])
+        .then(([villas, subpackages]) => {
+          setVillaOptions(unwrap(villas));
+          setSubpackageOptions(unwrap(subpackages));
+        })
         .catch(() => {});
     }
   }, [type]);
   const fields: Record<string, [string, string, string][]> = {
     villa: [
       ["namevilla", "Villa name", "text"],
-      ["description", "Description", "textarea"],
       ["subcategoryId", "Subcategories", "subcategory-select"],
       ["facilityId", "Facilities", "facility-select"],
-      ["sosId", "Emergency contact (SOS)", "sos-select"],
-      ["operational", "Operational hours", "text"],
-      ["maps", "Google Maps URL", "url"],
-      ["do", "Recommended activities (Do)", "textarea"],
-      ["dont", "Restrictions (Don't)", "textarea"],
-      ["safety", "Safety information", "textarea"],
+      ["operational", "Operational hours", "operational-hours"],
+      ["description", "Description", "textarea"],
       ["image", "Villa images", "files"],
     ],
     activity: [
       ["nameactivity", "Activity name", "text"],
-      ["description", "Description", "textarea"],
       ["subcategoryId", "Subcategories", "subcategory-select"],
       ["facilityId", "Facilities", "facility-select"],
-      ["operational", "Operational hours", "text"],
-      ["maps", "Google Maps URL", "url"],
-      ["do", "Recommended actions (Do)", "textarea"],
-      ["dont", "Restrictions (Don't)", "textarea"],
-      ["safety", "Safety information", "textarea"],
+      ["operational", "Operational hours", "operational-hours"],
+      ["description", "Description", "textarea"],
       ["image", "Activity images", "files"],
     ],
     restaurant: [
       ["namerestaurant", "Restaurant name", "text"],
-      ["description", "Description", "textarea"],
       ["subcategoryId", "Subcategories", "subcategory-select"],
       ["facilityId", "Facilities", "facility-select"],
-      ["operational", "Operational hours", "text"],
-      ["maps", "Google Maps URL", "url"],
-      ["do", "Recommended actions (Do)", "textarea"],
-      ["dont", "Restrictions (Don't)", "textarea"],
-      ["safety", "Safety information", "textarea"],
+      ["operational", "Operational hours", "operational-hours"],
+      ["description", "Description", "textarea"],
       ["image", "Restaurant images", "files"],
     ],
     event: [
       ["nameevent", "Event name", "text"],
-      ["villaId", "Related villa (optional)", "villa-select"],
+      ["price", "Price", "number"],
       ["start_date", "Start date", "date"],
       ["end_date", "End date", "date"],
       ["start_time", "Start time", "time"],
       ["end_time", "End time", "time"],
-      ["price", "Price", "number"],
       ["description", "Description", "textarea"],
-      ["maps", "Google Maps URL", "url"],
-      ["do", "Recommended activities (Do)", "textarea"],
-      ["dont", "Restrictions (Don't)", "textarea"],
-      ["safety", "Safety information", "textarea"],
       ["image", "Event images", "files"],
     ],
     sos: [
-      ["name", "Name", "text"],
-      ["address", "Location", "text"],
-      ["phone", "Number", "text"],
+      ["name_sos", "Name", "text"],
+      ["alamat_sos", "Location", "text"],
+      ["telepon", "Number", "text"],
     ],
     facility: [
       ["namefacility", "Name", "text"],
@@ -1199,25 +1182,37 @@ function Editor({
       ["image", "Icon", "file"],
     ],
     packages: [
-      ["villa_id", "Villa ID", "number"],
-      ["subpackage_id", "Sub Package ID", "number"],
+      ["villaId", "Villa", "villa-select"],
+      ["subPackageId", "Sub Package", "subpackage-select"],
       ["price", "Price", "number"],
-      ["include_name", "Included", "text"],
+      ["includeName", "Included item", "text"],
       ["image", "Image", "file"],
     ],
   };
   const list = fields[type] || fields.packages;
-  const entityLabel = type === "villa" ? "Villa" : type === "activity" ? "Activity" : type === "restaurant" ? "Restaurant" : "Data";
+  const entityLabel = type === "villa" ? "Villa" : type === "activity" ? "Activity" : type === "restaurant" ? "Restaurant" : type === "event" ? "Event" : type === "facility" ? "Facility" : type === "sos" ? "SOS" : type === "packages" ? "Package" : type === "subpackage" ? "Sub Package" : "Data";
   const requiredKeys: Record<string, string[]> = {
-    villa: ["namevilla", "subcategoryId", "facilityId", "sosId"],
+    villa: ["namevilla", "subcategoryId", "facilityId"],
     activity: ["nameactivity", "subcategoryId", "facilityId"],
     restaurant: ["namerestaurant", "subcategoryId", "facilityId"],
+    event: ["nameevent", "start_date", "end_date", "start_time", "end_time"],
+    sos: ["name_sos", "alamat_sos", "telepon"],
+    subpackage: ["jenispackage"],
+    packages: ["villaId", "subPackageId", "price"],
   };
   const isRequiredField = (key: string, fieldType: string) =>
-    (requiredKeys[type] || []).includes(key) || (fieldType === "files" && !value);
-  const [form, setForm] = useState<Record<string, any>>(() =>
-      Object.fromEntries(list.map(([k]) => [k, value?.[k] ?? ""])),
-    ),
+    (requiredKeys[type] || []).includes(key) || ((fieldType === "files" || fieldType === "file") && (!value || type === "packages"));
+  const [form, setForm] = useState<Record<string, any>>(() => {
+      const initial = Object.fromEntries(list.map(([k]) => [k, value?.[k] ?? ""]));
+      if (type === "packages" && value) {
+        const subPackageId = Object.keys(value.subpackage_data || {})[0] || "";
+        const detail = value.subpackage_data?.[subPackageId];
+        initial.subPackageId = subPackageId;
+        initial.price = detail?.price ?? "";
+        initial.includeName = detail?.include?.[0]?.name ?? "";
+      }
+      return initial;
+    }),
     [busy, setBusy] = useState(false),
     [error, setError] = useState("");
   async function save(e: React.FormEvent) {
@@ -1265,7 +1260,6 @@ function Editor({
         </button>
       </div>
       <form onSubmit={save} className="form-grid">
-        <p className="form-guidance"><span><b>*</b> Fields marked with an asterisk are required.</span></p>
         {list.map(([key, label, type]) => (
           <label key={key}>
             <span className="field-label"><span>{label}{isRequiredField(key, type) && <b className="required-mark" aria-label="required">*</b>}</span></span>
@@ -1275,18 +1269,17 @@ function Editor({
                 placeholder={`Enter ${label.toLowerCase()}...`}
                 onChange={(e) => setForm({ ...form, [key]: e.target.value })}
               />
-            ) : type === "sos-select" ? (
-              <SOSSelect
-                options={sosOptions}
-                value={String(form[key] || "")}
-                onChange={(selected) => setForm({ ...form, [key]: selected })}
-              />
             ) : type === "villa-select" ? (
               <VillaSelect
                 options={villaOptions}
                 value={String(form[key] || "")}
                 onChange={(selected) => setForm({ ...form, [key]: selected })}
               />
+            ) : type === "subpackage-select" ? (
+              <select value={String(form[key] || "")} onChange={(e) => setForm({ ...form, [key]: e.target.value })} required>
+                <option value="">Choose sub package</option>
+                {subpackageOptions.map((item) => <option key={item.id_subpackage} value={item.id_subpackage}>{item.jenispackage}</option>)}
+              </select>
             ) : type === "facility-select" ? (
               <FacilityMultiSelect
                 options={facilityOptions}
@@ -1295,6 +1288,38 @@ function Editor({
               />
             ) : type === "subcategory-select" ? (
               <SubcategoryMultiSelect options={subcategoryOptions} value={String(form[key] || "")} onChange={(selected) => setForm({ ...form, [key]: selected })} />
+            ) : type === "operational-hours" ? (
+              <div className="operational-hours-input">
+                <span className="operational-time-field">
+                  <input
+                    type="time"
+                    aria-label="Opening time"
+                    className={String(form[key] || "").split(" - ")[0] ? "has-value" : ""}
+                    value={String(form[key] || "").split(" - ")[0] || ""}
+                    onClick={(e) => e.currentTarget.showPicker?.()}
+                    onChange={(e) => {
+                      const closingTime = String(form[key] || "").split(" - ")[1] || "";
+                      setForm({ ...form, [key]: `${e.target.value} - ${closingTime}` });
+                    }}
+                  />
+                  {!String(form[key] || "").split(" - ")[0] && <small>Opening time</small>}
+                </span>
+                <i>to</i>
+                <span className="operational-time-field">
+                  <input
+                    type="time"
+                    aria-label="Closing time"
+                    className={String(form[key] || "").split(" - ")[1] ? "has-value" : ""}
+                    value={String(form[key] || "").split(" - ")[1] || ""}
+                    onClick={(e) => e.currentTarget.showPicker?.()}
+                    onChange={(e) => {
+                      const openingTime = String(form[key] || "").split(" - ")[0] || "";
+                      setForm({ ...form, [key]: `${openingTime} - ${e.target.value}` });
+                    }}
+                  />
+                  {!String(form[key] || "").split(" - ")[1] && <small>Closing time</small>}
+                </span>
+              </div>
             ) : type === "files" ? (
               <input
                 type="file"
@@ -1305,6 +1330,19 @@ function Editor({
                   setForm({ ...form, [key]: Array.from(e.target.files || []) })
                 }
               />
+            ) : key === "price" ? (
+              <div className="currency-input">
+                <span>Rp</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="any"
+                  placeholder="0"
+                  required={isRequiredField(key, type)}
+                  defaultValue={form[key]}
+                  onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+                />
+              </div>
             ) : (
               <input
                 type={type}
@@ -1312,6 +1350,9 @@ function Editor({
                 step={type === "number" ? "any" : undefined}
                 required={isRequiredField(key, type)}
                 defaultValue={type === "file" ? undefined : form[key]}
+                onClick={(e) => {
+                  if (type === "date" || type === "time") e.currentTarget.showPicker?.();
+                }}
                 onChange={(e) =>
                   setForm({
                     ...form,
@@ -1347,7 +1388,7 @@ function Detail({ value, onClose }: { value: any; onClose: () => void }) {
             "Detail"}
         </h2>
         {Object.entries(value)
-          .filter(([k, v]) => !k.startsWith("id_") && typeof v !== "object")
+          .filter(([k, v]) => !k.startsWith("id_") && !["do", "dont", "maps", "safety", "sosId"].includes(k) && typeof v !== "object")
           .map(([k, v]) => (
             <div className="detail-row" key={k}>
               <b>{k.replaceAll("_", " ")}</b>
@@ -1486,14 +1527,14 @@ function PackagesPage() {
         path: "/admin/packages",
         add: true,
         columns: [
-          { label: "Name", value: (r) => r.villa?.namevilla },
+          { label: "Villa", value: (r) => r.villa?.namevilla || (r.villaId ? `Villa #${r.villaId}` : "-") },
           {
             label: "Type",
             value: (r) =>
               r.subpackages?.map((x: any) => x.jenispackage).join(", ") || "-",
           },
           {
-            label: "Ticket",
+            label: "Total Types",
             value: (r) => Object.keys(r.subpackage_data || {}).length,
           },
         ],
@@ -1916,9 +1957,9 @@ function SOSPage() {
         path: "/admin/sos",
         add: true,
         columns: [
-          { label: "Name", value: (r) => r.name },
-          { label: "Location", value: (r) => r.address },
-          { label: "Number", value: (r) => r.phone },
+          { label: "Name", value: (r) => r.name_sos },
+          { label: "Location", value: (r) => r.alamat_sos },
+          { label: "Number", value: (r) => r.telepon },
         ],
       }}
     />

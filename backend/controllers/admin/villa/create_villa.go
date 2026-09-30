@@ -25,11 +25,6 @@ func CreateVilla(c *gin.Context) {
 
 	name := c.PostForm("namevilla")
 	description := c.PostForm("description")
-	do := c.PostForm("do")
-	dont := c.PostForm("dont")
-	safety := c.PostForm("safety")
-	maps := c.PostForm("maps")
-	sosID, _ := strconv.Atoi(c.PostForm("sosId"))
 	operational := c.PostForm("operational")
 
 	rawFacility := c.PostForm("facilityId")
@@ -107,11 +102,6 @@ func CreateVilla(c *gin.Context) {
 		Name:          name,
 		Description:   description,
 		Imagedata:     imageBase64,
-		Do:            do,
-		Dont:          dont,
-		Safety:        safety,
-		Maps:          maps,
-		SosID:         uint(sosID),
 		FacilityID:    rawFacility,
 		Operational:   operational,
 		CreatedAt:     time.Now().Format("2006-01-02 15:04:05"),
@@ -121,14 +111,6 @@ func CreateVilla(c *gin.Context) {
 	if err := config.DB.Create(&villa).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Gagal menambahkan villa",
-			"error":   err.Error(),
-		})
-		return
-	}
-
-	if err := config.DB.Preload("Sos").First(&villa, villa.ID).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Gagal memuat data relasi villa",
 			"error":   err.Error(),
 		})
 		return
@@ -202,11 +184,6 @@ func CreateVilla(c *gin.Context) {
 				"namevilla":     villa.Name,
 				"description":   villa.Description,
 				"images":        imagesBase64,
-				"do":            villa.Do,
-				"dont":          villa.Dont,
-				"safety":        villa.Safety,
-				"maps":          villa.Maps,
-				"sosId":         villa.SosID,
 				"facilityId":    villa.FacilityID,
 				"subcategoryId": villa.SubcategoryID,
 				"subcategory":   subResp,
@@ -214,12 +191,6 @@ func CreateVilla(c *gin.Context) {
 				"created_at":    villa.CreatedAt,
 				"updated_at":    villa.UpdatedAt,
 				"facilities":    facilityResp,
-				"sos": gin.H{
-					"id_sos":     villa.Sos.ID,
-					"name_sos":   villa.Sos.Name,
-					"alamat_sos": villa.Sos.Alamat,
-					"telepon":    villa.Sos.Telepon,
-				},
 			},
 		},
 	})

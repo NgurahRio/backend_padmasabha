@@ -25,10 +25,6 @@ func CreateRestaurant(c *gin.Context) {
 
 	name := c.PostForm("namerestaurant")
 	description := c.PostForm("description")
-	do := c.PostForm("do")
-	dont := c.PostForm("dont")
-	safety := c.PostForm("safety")
-	maps := c.PostForm("maps")
 	operational := c.PostForm("operational")
 
 	rawFacility := c.PostForm("facilityId")
@@ -106,10 +102,6 @@ func CreateRestaurant(c *gin.Context) {
 		Name:          name,
 		Description:   description,
 		Imagedata:     imageBase64,
-		Do:            do,
-		Dont:          dont,
-		Safety:        safety,
-		Maps:          maps,
 		FacilityID:    rawFacility,
 		Operational:   operational,
 		CreatedAt:     time.Now().Format("2006-01-02 15:04:05"),
@@ -192,10 +184,6 @@ func CreateRestaurant(c *gin.Context) {
 				"namerestaurant": restaurant.Name,
 				"description":    restaurant.Description,
 				"images":         imagesBase64,
-				"do":             restaurant.Do,
-				"dont":           restaurant.Dont,
-				"safety":         restaurant.Safety,
-				"maps":           restaurant.Maps,
 				"facilityId":     restaurant.FacilityID,
 				"subcategoryId":  restaurant.SubcategoryID,
 				"subcategory":    subResp,

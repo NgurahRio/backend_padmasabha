@@ -55,10 +55,6 @@ func UpdateRestaurant(c *gin.Context) {
 
 	updateField(&restaurant.Name, "namerestaurant")
 	updateField(&restaurant.Description, "description")
-	updateField(&restaurant.Do, "do")
-	updateField(&restaurant.Dont, "dont")
-	updateField(&restaurant.Safety, "safety")
-	updateField(&restaurant.Maps, "maps")
 	updateField(&restaurant.Operational, "operational")
 
 	if v := c.PostForm("facilityId"); v != "" {
