@@ -11,7 +11,7 @@ import (
 func GetAllEventsUser(c *gin.Context) {
 	var events []models.Event
 
-	if err := config.DB.Preload("Destination").Find(&events).Error; err != nil {
+	if err := config.DB.Preload("Villa").Find(&events).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal mengambil data event"})
 		return
 	}
@@ -26,7 +26,7 @@ func GetEventByIDUser(c *gin.Context) {
 	id := c.Param("id")
 	var event models.Event
 
-	if err := config.DB.Preload("Destination").First(&event, "id_event = ?", id).Error; err != nil {
+	if err := config.DB.Preload("Villa").First(&event, "id_event = ?", id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Event tidak ditemukan"})
 		return
 	}

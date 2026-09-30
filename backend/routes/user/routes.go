@@ -1,13 +1,15 @@
 package routes
 
 import (
+	"backend/controllers/user/activity"
 	"backend/controllers/user/auth"
 	"backend/controllers/user/category"
-	"backend/controllers/user/destination"
 	"backend/controllers/user/event"
 	"backend/controllers/user/packages"
+	"backend/controllers/user/restaurant"
 	"backend/controllers/user/subcategory"
 	"backend/controllers/user/subpackage"
+	"backend/controllers/user/villa"
 	"backend/middleware"
 
 	"github.com/gin-gonic/gin"
@@ -19,8 +21,14 @@ func SetupUserRoutes(r *gin.Engine) {
 	r.POST("/user/register", auth.RegisterUser)
 	r.POST("/user/login", auth.LoginUser)
 
-	r.GET("/destinations", destination.GetAllDestinationsUser)
-	r.GET("/destinations/:id", destination.GetDestinationByIDUser)
+	r.GET("/villas", villa.GetAllVillasUser)
+	r.GET("/villas/:id", villa.GetVillaByIDUser)
+
+	r.GET("/activities", activity.GetAllActivitysUser)
+	r.GET("/activities/:id", activity.GetActivityByIDUser)
+
+	r.GET("/restaurants", restaurant.GetAllRestaurantsUser)
+	r.GET("/restaurants/:id", restaurant.GetRestaurantByIDUser)
 
 	r.GET("/events", event.GetAllEventsUser)
 	r.GET("/events/:id", event.GetEventByIDUser)
@@ -32,7 +40,7 @@ func SetupUserRoutes(r *gin.Engine) {
 	r.GET("/subcategories/:id", subcategory.GetSubcategoryByIDUser)
 
 	r.GET("/packages", packages.GetAllPackagesUser)
-	r.GET("/packages/:destinationId", packages.GetPackageByDestinationIDUser)
+	r.GET("/packages/:villaId", packages.GetPackageByVillaIDUser)
 
 	r.GET("/subpackage", subpackage.GetAllSubpackagesUser)
 	r.GET("/subpackage/:id", subpackage.GetSubpackageByIDUser)

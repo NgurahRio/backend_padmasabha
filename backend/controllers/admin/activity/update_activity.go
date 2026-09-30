@@ -1,4 +1,4 @@
-package destination
+package activity
 
 import (
 	"backend/config"
@@ -14,13 +14,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func UpdateDestination(c *gin.Context) {
+func UpdateActivity(c *gin.Context) {
 	id := c.Param("id")
 
-	var destination models.Destination
+	var activity models.Activity
 
-	if err := config.DB.First(&destination, "id_destination = ?", id).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"message": "Destinasi tidak ditemukan"})
+	if err := config.DB.First(&activity, "id_activity = ?", id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "Activity tidak ditemukan"})
 		return
 	}
 
@@ -42,7 +42,7 @@ func UpdateDestination(c *gin.Context) {
 			}
 		}
 
-		destination.SubcategoryID = v
+		activity.SubcategoryID = v
 		changed["subcategoryId"] = v
 	}
 
@@ -53,20 +53,13 @@ func UpdateDestination(c *gin.Context) {
 		}
 	}
 
-	updateField(&destination.Name, "namedestination")
-	updateField(&destination.Description, "description")
-	updateField(&destination.Do, "do")
-	updateField(&destination.Dont, "dont")
-	updateField(&destination.Safety, "safety")
-	updateField(&destination.Maps, "maps")
-	updateField(&destination.Operational, "operational")
-
-	if v := c.PostForm("sosId"); v != "" {
-		if n, err := strconv.Atoi(v); err == nil {
-			destination.SosID = uint(n)
-			changed["sosId"] = n
-		}
-	}
+	updateField(&activity.Name, "nameactivity")
+	updateField(&activity.Description, "description")
+	updateField(&activity.Do, "do")
+	updateField(&activity.Dont, "dont")
+	updateField(&activity.Safety, "safety")
+	updateField(&activity.Maps, "maps")
+	updateField(&activity.Operational, "operational")
 
 	if v := c.PostForm("facilityId"); v != "" {
 
@@ -83,7 +76,7 @@ func UpdateDestination(c *gin.Context) {
 			}
 		}
 
-		destination.FacilityID = v
+		activity.FacilityID = v
 		changed["facilityId"] = v
 	}
 
@@ -91,7 +84,7 @@ func UpdateDestination(c *gin.Context) {
 	if formErr == nil {
 
 		var oldImages []string
-		if err := json.Unmarshal([]byte(destination.Imagedata), &oldImages); err != nil {
+		if err := json.Unmarshal([]byte(activity.Imagedata), &oldImages); err != nil {
 			oldImages = []string{}
 		}
 
@@ -125,14 +118,14 @@ func UpdateDestination(c *gin.Context) {
 
 		if imageChanged {
 			jsonBytes, _ := json.Marshal(oldImages)
-			destination.Imagedata = string(jsonBytes)
+			activity.Imagedata = string(jsonBytes)
 			changed["images"] = "indexed image updated"
 		}
 	}
 
-	if err := config.DB.Save(&destination).Error; err != nil {
+	if err := config.DB.Save(&activity).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Gagal mengupdate destinasi",
+			"message": "Gagal mengupdate activity",
 		})
 		return
 	}

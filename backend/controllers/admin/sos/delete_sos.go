@@ -18,22 +18,22 @@ func DeleteSOS(c *gin.Context) {
 		return
 	}
 
-	// SOS is referenced by destination.sosId. Deleting it while it is still
+	// SOS is referenced by villa.sosId. Deleting it while it is still
 	// in use would violate the database foreign-key constraint.
-	var destinationCount int64
-	if err := config.DB.Model(&models.Destination{}).
+	var villaCount int64
+	if err := config.DB.Model(&models.Villa{}).
 		Where("sosId = ?", sos.ID).
-		Count(&destinationCount).Error; err != nil {
+		Count(&villaCount).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Gagal memeriksa penggunaan SOS",
 		})
 		return
 	}
 
-	if destinationCount > 0 {
+	if villaCount > 0 {
 		c.JSON(http.StatusConflict, gin.H{
-			"error":             "SOS tidak dapat dihapus karena masih digunakan oleh destinasi",
-			"destination_count": destinationCount,
+			"error":       "SOS tidak dapat dihapus karena masih digunakan oleh villa",
+			"villa_count": villaCount,
 		})
 		return
 	}

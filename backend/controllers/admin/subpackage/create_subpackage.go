@@ -38,7 +38,7 @@ func CreateSubpackage(c *gin.Context) {
 
 	subpackage := models.SubPackage{
 		Packagetype: jenisPackage,
-		Image:       imageBytes, 
+		Image:       imageBytes,
 	}
 
 	if err := config.DB.Create(&subpackage).Error; err != nil {

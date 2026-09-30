@@ -1,11 +1,13 @@
 package routes
 
 import (
+	"backend/controllers/admin/activity"
 	"backend/controllers/admin/auth"
 	"backend/controllers/admin/category"
-	"backend/controllers/admin/destination"
 	"backend/controllers/admin/event"
 	"backend/controllers/admin/facility"
+	"backend/controllers/admin/restaurant"
+	"backend/controllers/admin/villa"
 
 	packagess "backend/controllers/admin/packages"
 	"backend/controllers/admin/sos"
@@ -77,12 +79,26 @@ func SetupRouter() *gin.Engine {
 		admin.PUT("/category/:id", category.UpdateCategory)
 		admin.DELETE("/category/:id", category.DeleteCategory)
 
-		// Destination routes
-		admin.POST("/destination", destination.CreateDestination)
-		admin.GET("/destination", destination.GetAllDestinations)
-		admin.GET("/destination/:id", destination.GetDestinationByID)
-		admin.PUT("/destination/:id", destination.UpdateDestination)
-		admin.DELETE("/destination/:id", destination.DeleteDestination)
+		// Villa routes
+		admin.POST("/villa", villa.CreateVilla)
+		admin.GET("/villa", villa.GetAllVillas)
+		admin.GET("/villa/:id", villa.GetVillaByID)
+		admin.PUT("/villa/:id", villa.UpdateVilla)
+		admin.DELETE("/villa/:id", villa.DeleteVilla)
+
+		// Activity routes
+		admin.POST("/activity", activity.CreateActivity)
+		admin.GET("/activity", activity.GetAllActivitys)
+		admin.GET("/activity/:id", activity.GetActivityByID)
+		admin.PUT("/activity/:id", activity.UpdateActivity)
+		admin.DELETE("/activity/:id", activity.DeleteActivity)
+
+		// Restaurant routes
+		admin.POST("/restaurant", restaurant.CreateRestaurant)
+		admin.GET("/restaurant", restaurant.GetAllRestaurants)
+		admin.GET("/restaurant/:id", restaurant.GetRestaurantByID)
+		admin.PUT("/restaurant/:id", restaurant.UpdateRestaurant)
+		admin.DELETE("/restaurant/:id", restaurant.DeleteRestaurant)
 
 		// Event routes
 		admin.POST("/event", event.CreateEvent)
@@ -108,9 +124,9 @@ func SetupRouter() *gin.Engine {
 		// Packages routes
 		admin.POST("/packages", packagess.CreatePackages)
 		admin.GET("/packages", packagess.GetAllPackages)
-		admin.GET("/packages/:destinationId", packagess.GetPackageByDestinationID)
-		admin.PUT("/packages/:destinationId", packagess.UpdatePackages)
-		admin.DELETE("/packages/:destinationId", packagess.DeletePackages)
+		admin.GET("/packages/:villaId", packagess.GetPackageByVillaID)
+		admin.PUT("/packages/:villaId", packagess.UpdatePackages)
+		admin.DELETE("/packages/:villaId", packagess.DeletePackages)
 
 	}
 

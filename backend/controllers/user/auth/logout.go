@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 )
+
 func LogoutUser(c *gin.Context) {
 	// Ambil token dari header Authorization
 	auth := c.GetHeader("Authorization")

@@ -2,10 +2,10 @@ package models
 
 type Packages struct {
 	ID             uint   `gorm:"primaryKey;column:id_packages" json:"id_packages"`
-	DestinationID  uint   `gorm:"column:destinationId" json:"destinationId"`
+	VillaID        uint   `gorm:"column:villaId" json:"villaId"`
 	SubPackageData string `gorm:"column:subpackage_data" json:"subpackage_data"`
 
-	Destination Destination `gorm:"foreignKey:DestinationID;references:ID" json:"destination,omitempty"`
+	Villa Villa `gorm:"foreignKey:VillaID;references:ID" json:"villa,omitempty"`
 }
 
 func (Packages) TableName() string {

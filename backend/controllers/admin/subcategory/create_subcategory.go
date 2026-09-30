@@ -19,6 +19,18 @@ func CreateSubcategory(c *gin.Context) {
 		return
 	}
 
+	var duplicateCount int64
+	if err := config.DB.Model(&models.Subcategory{}).
+		Where("categoriesId = ? AND LOWER(namesubcategories) = LOWER(?)", input.CategoriesID, input.NameSubcategories).
+		Count(&duplicateCount).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal memeriksa nama subcategory"})
+		return
+	}
+	if duplicateCount > 0 {
+		c.JSON(http.StatusConflict, gin.H{"error": "Subcategory dengan nama tersebut sudah ada pada category ini"})
+		return
+	}
+
 	subcategory := models.Subcategory{
 		CategoryID: input.CategoriesID,
 		Name:       input.NameSubcategories,

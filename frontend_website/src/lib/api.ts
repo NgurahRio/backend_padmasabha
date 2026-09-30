@@ -1,4 +1,4 @@
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+﻿export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
 export async function api(path: string, init: RequestInit = {}) {
   const headers = new Headers(init.headers);
@@ -15,4 +15,4 @@ export async function api(path: string, init: RequestInit = {}) {
 }
 
 export const unwrap = (payload: any) => Array.isArray(payload) ? payload : (payload?.data ?? []);
-export const idOf = (row: any) => row?.id_destination ?? row?.id_event ?? row?.id_categories ?? row?.id_users ?? row?.id_sos ?? row?.id_facility ?? row?.id_subpackage ?? row?.id_packages;
+export const idOf = (row: any) => row?.id_villa ?? row?.id_activity ?? row?.id_restaurant ?? row?.id_event ?? row?.id_categories ?? row?.id_users ?? row?.id_sos ?? row?.id_facility ?? row?.id_subpackage ?? row?.id_packages;

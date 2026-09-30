@@ -10,22 +10,22 @@ import (
 )
 
 func DeletePackages(c *gin.Context) {
-	destIDStr := c.Param("destinationId")
+	destIDStr := c.Param("villaId")
 	if destIDStr == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "destinationId wajib diisi"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "villaId wajib diisi"})
 		return
 	}
 
 	destID, convErr := strconv.Atoi(destIDStr)
 	if convErr != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "destinationId harus berupa angka"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "villaId harus berupa angka"})
 		return
 	}
 
 	var pkg models.Packages
-	if err := config.DB.First(&pkg, "destinationId = ?", destID).Error; err != nil {
+	if err := config.DB.First(&pkg, "villaId = ?", destID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
-			"message": "Package untuk destinationId ini tidak ditemukan",
+			"message": "Package untuk villaId ini tidak ditemukan",
 		})
 		return
 	}

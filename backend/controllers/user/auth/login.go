@@ -58,4 +58,3 @@ func LoginUser(c *gin.Context) {
 		},
 	})
 }
-

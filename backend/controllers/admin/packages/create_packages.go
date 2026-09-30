@@ -16,20 +16,20 @@ import (
 
 func CreatePackages(c *gin.Context) {
 
-	destIDStr := c.PostForm("destinationId")
+	destIDStr := c.PostForm("villaId")
 	if destIDStr == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "destinationId wajib diisi"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "villaId wajib diisi"})
 		return
 	}
 
 	destID, convErr := strconv.Atoi(destIDStr)
 	if convErr != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "destinationId harus berupa angka"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "villaId harus berupa angka"})
 		return
 	}
-	var destCheck models.Destination
-	if err := config.DB.First(&destCheck, "id_destination = ?", destID).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "destinationId tidak ditemukan di database"})
+	var destCheck models.Villa
+	if err := config.DB.First(&destCheck, "id_villa = ?", destID).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "villaId tidak ditemukan di database"})
 		return
 	}
 
@@ -117,7 +117,7 @@ func CreatePackages(c *gin.Context) {
 	}
 
 	var pkg models.Packages
-	findErr := config.DB.First(&pkg, "destinationId = ?", destID).Error
+	findErr := config.DB.First(&pkg, "villaId = ?", destID).Error
 
 	existingJSON := map[string]subPackageDetail{}
 	if findErr == nil && pkg.SubPackageData != "" {
@@ -222,7 +222,7 @@ func CreatePackages(c *gin.Context) {
 
 	if findErr != nil {
 		pkg = models.Packages{
-			DestinationID:  uint(destID),
+			VillaID:        uint(destID),
 			SubPackageData: string(jsonBytes),
 		}
 

@@ -1,4 +1,4 @@
-package destination
+package restaurant
 
 import (
 	"backend/config"
@@ -34,18 +34,18 @@ func normalizeImages(data string) []string {
 	return images
 }
 
-func GetAllDestinationsUser(c *gin.Context) {
-	var destinations []models.Destination
-	if err := config.DB.Preload("Sos").Find(&destinations).Error; err != nil {
+func GetAllRestaurantsUser(c *gin.Context) {
+	var restaurants []models.Restaurant
+	if err := config.DB.Find(&restaurants).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Gagal mengambil data destinasi",
+			"message": "Gagal mengambil data restaurant",
 		})
 		return
 	}
 
 	var response []gin.H
 
-	for _, d := range destinations {
+	for _, d := range restaurants {
 		images := normalizeImages(d.Imagedata)
 
 		var subcategories []models.Subcategory
@@ -99,42 +99,35 @@ func GetAllDestinationsUser(c *gin.Context) {
 		}
 
 		response = append(response, gin.H{
-			"id_destination":  d.ID,
-			"subcategoryId":   d.SubcategoryID,
-			"subcategory":     subResp,
-			"namedestination": d.Name,
-			"description":     d.Description,
-			"images":          images,
-			"do":              d.Do,
-			"dont":            d.Dont,
-			"safety":          d.Safety,
-			"operational":     d.Operational,
-			"maps":            d.Maps,
-			"facilityId":      d.FacilityID,
-			"facilities":      facilityResp,
-			"sosId":           d.SosID,
-			"sos": gin.H{
-				"id_sos":     d.Sos.ID,
-				"name_sos":   d.Sos.Name,
-				"alamat_sos": d.Sos.Alamat,
-				"telepon":    d.Sos.Telepon,
-			},
+			"id_restaurant":  d.ID,
+			"subcategoryId":  d.SubcategoryID,
+			"subcategory":    subResp,
+			"namerestaurant": d.Name,
+			"description":    d.Description,
+			"images":         images,
+			"do":             d.Do,
+			"dont":           d.Dont,
+			"safety":         d.Safety,
+			"operational":    d.Operational,
+			"maps":           d.Maps,
+			"facilityId":     d.FacilityID,
+			"facilities":     facilityResp,
 		})
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Berhasil mengambil semua destinasi",
+		"message": "Berhasil mengambil semua restaurant",
 		"data":    response,
 	})
 }
 
-func GetDestinationByIDUser(c *gin.Context) {
+func GetRestaurantByIDUser(c *gin.Context) {
 	id := c.Param("id")
 
-	var d models.Destination
-	if err := config.DB.Preload("Sos").First(&d, "id_destination = ?", id).Error; err != nil {
+	var d models.Restaurant
+	if err := config.DB.First(&d, "id_restaurant = ?", id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
-			"message": "Destinasi tidak ditemukan",
+			"message": "Restaurant tidak ditemukan",
 		})
 		return
 	}
@@ -192,28 +185,21 @@ func GetDestinationByIDUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Berhasil mengambil data destinasi",
+		"message": "Berhasil mengambil data restaurant",
 		"data": gin.H{
-			"id_destination":  d.ID,
-			"subcategoryId":   d.SubcategoryID,
-			"subcategory":     subResp,
-			"namedestination": d.Name,
-			"description":     d.Description,
-			"images":          images,
-			"do":              d.Do,
-			"dont":            d.Dont,
-			"safety":          d.Safety,
-			"operational":     d.Operational,
-			"maps":            d.Maps,
-			"facilityId":      d.FacilityID,
-			"facilities":      facilityResp,
-			"sosId":           d.SosID,
-			"sos": gin.H{
-				"id_sos":     d.Sos.ID,
-				"name_sos":   d.Sos.Name,
-				"alamat_sos": d.Sos.Alamat,
-				"telepon":    d.Sos.Telepon,
-			},
+			"id_restaurant":  d.ID,
+			"subcategoryId":  d.SubcategoryID,
+			"subcategory":    subResp,
+			"namerestaurant": d.Name,
+			"description":    d.Description,
+			"images":         images,
+			"do":             d.Do,
+			"dont":           d.Dont,
+			"safety":         d.Safety,
+			"operational":    d.Operational,
+			"maps":           d.Maps,
+			"facilityId":     d.FacilityID,
+			"facilities":     facilityResp,
 		},
 	})
 }

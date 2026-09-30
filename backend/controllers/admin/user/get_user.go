@@ -40,7 +40,6 @@ func GetAllUsers(c *gin.Context) {
 	})
 }
 
-
 func GetUserByID(c *gin.Context) {
 	id := c.Param("id")
 	var user models.User
@@ -63,4 +62,3 @@ func GetUserByID(c *gin.Context) {
 		"data":    response,
 	})
 }
-

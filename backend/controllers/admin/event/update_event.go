@@ -26,26 +26,26 @@ func UpdateEvent(c *gin.Context) {
 
 	updated := gin.H{}
 
-	if destStr, provided := c.GetPostForm("destinationId"); provided {
+	if destStr, provided := c.GetPostForm("villaId"); provided {
 		destStr = strings.TrimSpace(destStr)
 		if destStr == "" || strings.EqualFold(destStr, "null") {
-			event.DestinationID = nil
-			updated["destinationId"] = nil
+			event.VillaID = nil
+			updated["villaId"] = nil
 		} else if destInt, err := strconv.Atoi(destStr); err == nil && destInt >= 0 {
 
-			var destCheck models.Destination
-			if err := config.DB.First(&destCheck, "id_destination = ?", destInt).Error; err != nil {
+			var destCheck models.Villa
+			if err := config.DB.First(&destCheck, "id_villa = ?", destInt).Error; err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{
-					"message": "destinationId tidak ditemukan di database",
+					"message": "villaId tidak ditemukan di database",
 				})
 				return
 			}
 
 			tmp := uint(destInt)
-			event.DestinationID = &tmp
-			updated["destinationId"] = destInt
+			event.VillaID = &tmp
+			updated["villaId"] = destInt
 		} else {
-			c.JSON(http.StatusBadRequest, gin.H{"message": "destinationId tidak valid"})
+			c.JSON(http.StatusBadRequest, gin.H{"message": "villaId tidak valid"})
 			return
 		}
 	}

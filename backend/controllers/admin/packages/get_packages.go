@@ -90,7 +90,7 @@ func normalizeSubPackageData(data string) map[string]subPackageDetail {
 func GetAllPackages(c *gin.Context) {
 	var pkgs []models.Packages
 
-	if err := config.DB.Preload("Destination").Find(&pkgs).Error; err != nil {
+	if err := config.DB.Preload("Villa").Find(&pkgs).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Gagal mengambil semua packages",
 		})
@@ -128,12 +128,12 @@ func GetAllPackages(c *gin.Context) {
 		}
 
 		result = append(result, gin.H{
-			"id_packages":   pkg.ID,
-			"destinationId": pkg.DestinationID,
-			"destination": gin.H{
-				"id_destination":  pkg.Destination.ID,
-				"namedestination": pkg.Destination.Name,
-				"description":     pkg.Destination.Description,
+			"id_packages": pkg.ID,
+			"villaId":     pkg.VillaID,
+			"villa": gin.H{
+				"id_villa":    pkg.Villa.ID,
+				"namevilla":   pkg.Villa.Name,
+				"description": pkg.Villa.Description,
 			},
 			"subpackage_data": data,
 			"subpackages":     subResp,
@@ -146,29 +146,29 @@ func GetAllPackages(c *gin.Context) {
 	})
 }
 
-func GetPackageByDestinationID(c *gin.Context) {
-	destIDStr := c.Param("destinationId")
+func GetPackageByVillaID(c *gin.Context) {
+	destIDStr := c.Param("villaId")
 	if destIDStr == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "destinationId wajib diisi"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "villaId wajib diisi"})
 		return
 	}
 
 	destID, convErr := strconv.Atoi(destIDStr)
 	if convErr != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "destinationId harus berupa angka"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "villaId harus berupa angka"})
 		return
 	}
 
-	var dest models.Destination
-	if err := config.DB.First(&dest, "id_destination = ?", destID).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"message": "destinationId tidak ditemukan di database"})
+	var dest models.Villa
+	if err := config.DB.First(&dest, "id_villa = ?", destID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "villaId tidak ditemukan di database"})
 		return
 	}
 
 	var pkg models.Packages
-	if err := config.DB.Preload("Destination").First(&pkg, "destinationId = ?", destID).Error; err != nil {
+	if err := config.DB.Preload("Villa").First(&pkg, "villaId = ?", destID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
-			"message": "Package untuk destinationId ini belum ada",
+			"message": "Package untuk villaId ini belum ada",
 		})
 		return
 	}
@@ -203,12 +203,12 @@ func GetPackageByDestinationID(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Berhasil mengambil data package",
 		"data": gin.H{
-			"id_packages":   pkg.ID,
-			"destinationId": pkg.DestinationID,
-			"destination": gin.H{
-				"id_destination":  pkg.Destination.ID,
-				"namedestination": pkg.Destination.Name,
-				"description":     pkg.Destination.Description,
+			"id_packages": pkg.ID,
+			"villaId":     pkg.VillaID,
+			"villa": gin.H{
+				"id_villa":    pkg.Villa.ID,
+				"namevilla":   pkg.Villa.Name,
+				"description": pkg.Villa.Description,
 			},
 			"subpackage_data": subData,
 			"subpackages":     subResp,

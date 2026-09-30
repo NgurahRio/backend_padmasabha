@@ -3,20 +3,26 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { api, idOf, unwrap } from "@/lib/api";
 const nav = [
   ["overview", "Overview"],
-  ["destination", "Destinations"],
-  ["event", "Events"],
   ["package", "Packages"],
   ["category", "Categories"],
+  ["subcategory", "Sub Categories"],
   ["user", "Users"],
   ["sos", "SOS"],
-  ["facility", "Facilities"],
   ["subpackage", "Sub Packages"],
+];
+const destinationNav = [
+  ["villa", "Villas"],
+  ["activity", "Activities"],
+  ["restaurant", "Restaurants"],
+  ["event", "Events"],
+  ["facility", "Facilities"],
 ];
 export default function Page() {
   const [ready, setReady] = useState(false),
     [user, setUser] = useState<any>(null),
     [active, setActive] = useState("overview"),
-    [menu, setMenu] = useState(false);
+    [menu, setMenu] = useState(false),
+    [destinationsOpen, setDestinationsOpen] = useState(true);
   useEffect(() => {
     const expired = () => setUser(null);
     window.addEventListener("admin-session-expired", expired);
@@ -37,7 +43,7 @@ export default function Page() {
           <small>Manager</small>
         </div>
         <nav>
-          {nav.map(([key, label]) => (
+          {nav.slice(0, 1).map(([key, label]) => (
             <button
               key={key}
               className={active === key ? "selected" : ""}
@@ -49,6 +55,15 @@ export default function Page() {
               <Icon name={key} />
               <span>{label}</span>
             </button>
+          ))}
+          <button className={destinationNav.some(([key]) => key === active) ? "nav-group-toggle selected" : "nav-group-toggle"} onClick={() => setDestinationsOpen((open) => !open)} aria-expanded={destinationsOpen}>
+            <Icon name="destination" /><span>Destinations</span><Icon name="chevrondown" />
+          </button>
+          {destinationsOpen && <div className="sidebar-subnav">
+            {destinationNav.map(([key, label]) => <button key={key} className={active === key ? "selected" : ""} onClick={() => { setActive(key); setMenu(false); }}><Icon name={key} /><span>{label}</span></button>)}
+          </div>}
+          {nav.slice(1).map(([key, label]) => (
+            <button key={key} className={active === key ? "selected" : ""} onClick={() => { setActive(key); setMenu(false); }}><Icon name={key} /><span>{label}</span></button>
           ))}
         </nav>
         <button
@@ -79,10 +94,13 @@ export default function Page() {
 function AdminPage({ active }: { active: string }) {
   const pages: Record<string, React.ReactNode> = {
     overview: <OverviewPage />,
-    destination: <DestinationsPage />,
+    villa: <VillasPage />,
+    activity: <ActivitiesPage />,
+    restaurant: <RestaurantsPage />,
     event: <EventsPage />,
     package: <PackagesPage />,
     category: <CategoriesPage />,
+    subcategory: <SubCategoriesPage />,
     user: <UsersPage />,
     sos: <SOSPage />,
     facility: <FacilitiesPage />,
@@ -434,7 +452,7 @@ function SOSSelect({
             <span className="picker-placeholder">Choose SOS contact</span>
           )}
         </span>
-        <span className="picker-chevron">⌄</span>
+        <span className="picker-chevron">?</span>
       </button>
       {open && (
         <div className="sos-dropdown">
@@ -460,7 +478,7 @@ function SOSSelect({
                         {item.alamat_sos ? ` · ${item.alamat_sos}` : ""}
                       </small>
                     </span>
-                    {active && <i>✓</i>}
+                    {active && <i>?</i>}
                   </button>
                 );
               })
@@ -473,7 +491,7 @@ function SOSSelect({
     </div>
   );
 }
-function DestinationSelect({
+function VillaSelect({
   options,
   value,
   onChange,
@@ -483,7 +501,7 @@ function DestinationSelect({
   onChange: (value: string) => void;
 }) {
   const [open, setOpen] = useState(false),
-    selected = options.find((item) => String(item.id_destination) === value);
+    selected = options.find((item) => String(item.id_villa) === value);
   return (
     <div className="sos-picker">
       <button
@@ -495,20 +513,20 @@ function DestinationSelect({
         <span>
           {selected ? (
             <>
-              <b>{selected.namedestination}</b>
+              <b>{selected.namevilla}</b>
             </>
           ) : (
-            <span className="picker-placeholder">Choose destination</span>
+            <span className="picker-placeholder">Choose villa</span>
           )}
         </span>
-        <span className="picker-chevron">⌄</span>
+        <span className="picker-chevron">?</span>
       </button>
       {open && (
         <div className="sos-dropdown">
           <div className="sos-options">
             {options.length ? (
               options.map((item) => {
-                const id = String(item.id_destination),
+                const id = String(item.id_villa),
                   active = id === value;
                 return (
                   <button
@@ -521,14 +539,14 @@ function DestinationSelect({
                     }}
                   >
                     <span>
-                      <b>{item.namedestination}</b>
+                      <b>{item.namevilla}</b>
                     </span>
-                    {active && <i>✓</i>}
+                    {active && <i>?</i>}
                   </button>
                 );
               })
             ) : (
-              <p className="facility-empty">No destinations available</p>
+              <p className="facility-empty">No villas available</p>
             )}
           </div>
         </div>
@@ -576,7 +594,7 @@ function FacilityMultiSelect({
             ? `${selected.length} facilities selected`
             : "Choose facilities"}
         </span>
-        <span className="facility-chevron">⌄</span>
+        <span className="facility-chevron">?</span>
       </button>
       {selected.length > 0 && (
         <div className="selected-facilities">
@@ -624,7 +642,7 @@ function FacilityMultiSelect({
                       </span>
                     )}
                     <span>{item.namefacility}</span>
-                    <i>{checked ? "✓" : ""}</i>
+                    <i>{checked ? "?" : ""}</i>
                   </label>
                 );
               })
@@ -650,6 +668,30 @@ function FacilityMultiSelect({
           </div>
         </div>
       )}
+    </div>
+  );
+}
+function SubcategoryMultiSelect({ options, value, onChange }: { options: any[]; value: string; onChange: (value: string) => void }) {
+  const selected = value.split(",").filter(Boolean),
+    [open, setOpen] = useState(false),
+    [draft, setDraft] = useState<string[]>(selected);
+  const toggle = (id: string) => setDraft((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
+  return (
+    <div className="subcategory-picker">
+      <button type="button" className={open ? "subcategory-picker-trigger open" : "subcategory-picker-trigger"} aria-expanded={open} onClick={() => { setDraft(selected); setOpen((current) => !current); }}>
+        <span>{selected.length ? `${selected.length} subcategories selected` : "Choose subcategories"}</span><span className="facility-chevron">?</span>
+      </button>
+      {selected.length > 0 && <div className="subcategory-picker-chips">{selected.map((id) => {
+        const item = options.find((option) => String(option.id_subcategories) === id);
+        return item ? <span key={id}><span>{item.namesubcategories}<small>{item.category?.name || "Uncategorized"}</small></span><button type="button" aria-label={`Remove ${item.namesubcategories}`} onClick={() => onChange(selected.filter((itemId) => itemId !== id).join(","))}><Icon name="close" /></button></span> : null;
+      })}</div>}
+      {open && <div className="subcategory-picker-dropdown">
+        <div className="subcategory-picker-options">{options.length ? options.map((item) => {
+          const id = String(item.id_subcategories), checked = draft.includes(id);
+          return <label className={checked ? "selected" : ""} key={id}><input type="checkbox" checked={checked} onChange={() => toggle(id)} /><span><b>{item.namesubcategories}</b><small>{item.category?.name || "Uncategorized"}</small></span><i>{checked ? "?" : ""}</i></label>;
+        }) : <p className="facility-empty">No subcategories available</p>}</div>
+        <div className="facility-picker-actions"><button type="button" onClick={() => setOpen(false)}>Cancel</button><button type="button" className="confirm" disabled={!draft.length} onClick={() => { onChange(draft.join(",")); setOpen(false); }}>Apply ({draft.length})</button></div>
+      </div>}
     </div>
   );
 }
@@ -775,10 +817,22 @@ function Icon({ name }: { name: string }) {
         <rect x="14" y="14" width="7" height="7" rx="1" />
       </>
     ),
-    destination: (
+    villa: (
       <>
         <path d="M12 21s6-5.2 6-11a6 6 0 1 0-12 0c0 5.8 6 11 6 11Z" />
         <circle cx="12" cy="10" r="2" />
+      </>
+    ),
+    activity: (
+      <>
+        <path d="M6 18 9.5 7l2.5 6 2-4 4 9" />
+        <path d="M4 18h16M15 6h.01" />
+      </>
+    ),
+    restaurant: (
+      <>
+        <path d="M6 3v8M3 3v5a3 3 0 0 0 6 0V3M6 11v10" />
+        <path d="M15 3v18M15 3c4 1 5 4 5 8h-5" />
       </>
     ),
     event: (
@@ -794,6 +848,12 @@ function Icon({ name }: { name: string }) {
       </>
     ),
     category: <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" />,
+    subcategory: (
+      <>
+        <path d="M5 5h5v5H5zM14 5h5v5h-5zM14 14h5v5h-5z" />
+        <path d="M7.5 10v6.5H14M10 7.5h4" />
+      </>
+    ),
     user: (
       <>
         <circle cx="12" cy="8" r="4" />
@@ -821,6 +881,12 @@ function Icon({ name }: { name: string }) {
       </>
     ),
     plus: <path d="M12 5v14M5 12h14" />,
+    search: (
+      <>
+        <circle cx="11" cy="11" r="7" />
+        <path d="m20 20-4-4" />
+      </>
+    ),
     edit: (
       <>
         <path d="m4 20 4.2-1 10.7-10.7a2 2 0 0 0-2.8-2.8L5.4 16.2 4 20Z" />
@@ -844,6 +910,7 @@ function Icon({ name }: { name: string }) {
       </>
     ),
     menu: <path d="M4 7h16M4 12h16M4 17h16" />,
+    chevrondown: <path d="m7 10 5 5 5-5" />,
     close: <path d="m6 6 12 12M18 6 6 18" />,
     check: <path d="m5 12 4 4L19 6" />,
     arrowleft: (
@@ -898,6 +965,7 @@ function ResourcePage({ config }: { config: ResourceConfig }) {
     [editing, setEditing] = useState<any>(null),
     [show, setShow] = useState(false),
     [detail, setDetail] = useState<any>(null);
+  const usesPopupEditor = ["/admin/villa", "/admin/activity", "/admin/restaurant"].includes(config.path);
   const filtered = useMemo(
     () =>
       data.rows.filter((r) =>
@@ -948,15 +1016,13 @@ function ResourcePage({ config }: { config: ResourceConfig }) {
         </div>
       </div>
       {show && (
-        <Editor
-          config={config}
-          value={editing}
-          onClose={() => setShow(false)}
-          onSaved={() => {
-            setShow(false);
-            data.load();
-          }}
-        />
+        usesPopupEditor ? (
+          <div className="modal resource-editor-overlay" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget) setShow(false); }}>
+            <Editor config={config} value={editing} onClose={() => setShow(false)} onSaved={() => { setShow(false); data.load(); }} />
+          </div>
+        ) : (
+          <Editor config={config} value={editing} onClose={() => setShow(false)} onSaved={() => { setShow(false); data.load(); }} />
+        )
       )}
       {detail && <Detail value={detail} onClose={() => setDetail(null)} />}{" "}
       {data.loading ? (
@@ -986,7 +1052,7 @@ function ResourcePage({ config }: { config: ResourceConfig }) {
                     <td key={c.label}>{c.value(r) ?? "-"}</td>
                   ))}
                   <td className="actions">
-                    {["destination", "event", "package"].includes(
+                    {["villa", "activity", "restaurant", "event", "package"].includes(
                       config.path.split("/").pop() || "",
                     ) && (
                       <button
@@ -1045,9 +1111,9 @@ function Editor({
   const [facilityOptions, setFacilityOptions] = useState<any[]>([]),
     [sosOptions, setSOSOptions] = useState<any[]>([]),
     [subcategoryOptions, setSubcategoryOptions] = useState<any[]>([]),
-    [destinationOptions, setDestinationOptions] = useState<any[]>([]);
+    [villaOptions, setVillaOptions] = useState<any[]>([]);
   useEffect(() => {
-    if (type === "destination") {
+    if (["villa", "activity", "restaurant"].includes(type)) {
       Promise.all([
         api("/admin/facility"),
         api("/admin/sos"),
@@ -1061,14 +1127,14 @@ function Editor({
         .catch(() => {});
     }
     if (type === "event") {
-      api("/admin/destination")
-        .then((data) => setDestinationOptions(unwrap(data)))
+      api("/admin/villa")
+        .then((data) => setVillaOptions(unwrap(data)))
         .catch(() => {});
     }
   }, [type]);
   const fields: Record<string, [string, string, string][]> = {
-    destination: [
-      ["namedestination", "Destination name", "text"],
+    villa: [
+      ["namevilla", "Villa name", "text"],
       ["description", "Description", "textarea"],
       ["subcategoryId", "Subcategories", "subcategory-select"],
       ["facilityId", "Facilities", "facility-select"],
@@ -1078,11 +1144,35 @@ function Editor({
       ["do", "Recommended activities (Do)", "textarea"],
       ["dont", "Restrictions (Don't)", "textarea"],
       ["safety", "Safety information", "textarea"],
-      ["image", "Destination images", "files"],
+      ["image", "Villa images", "files"],
+    ],
+    activity: [
+      ["nameactivity", "Activity name", "text"],
+      ["description", "Description", "textarea"],
+      ["subcategoryId", "Subcategories", "subcategory-select"],
+      ["facilityId", "Facilities", "facility-select"],
+      ["operational", "Operational hours", "text"],
+      ["maps", "Google Maps URL", "url"],
+      ["do", "Recommended actions (Do)", "textarea"],
+      ["dont", "Restrictions (Don't)", "textarea"],
+      ["safety", "Safety information", "textarea"],
+      ["image", "Activity images", "files"],
+    ],
+    restaurant: [
+      ["namerestaurant", "Restaurant name", "text"],
+      ["description", "Description", "textarea"],
+      ["subcategoryId", "Subcategories", "subcategory-select"],
+      ["facilityId", "Facilities", "facility-select"],
+      ["operational", "Operational hours", "text"],
+      ["maps", "Google Maps URL", "url"],
+      ["do", "Recommended actions (Do)", "textarea"],
+      ["dont", "Restrictions (Don't)", "textarea"],
+      ["safety", "Safety information", "textarea"],
+      ["image", "Restaurant images", "files"],
     ],
     event: [
       ["nameevent", "Event name", "text"],
-      ["destinationId", "Related destination (optional)", "destination-select"],
+      ["villaId", "Related villa (optional)", "villa-select"],
       ["start_date", "Start date", "date"],
       ["end_date", "End date", "date"],
       ["start_time", "Start time", "time"],
@@ -1109,7 +1199,7 @@ function Editor({
       ["image", "Icon", "file"],
     ],
     packages: [
-      ["destination_id", "Destination ID", "number"],
+      ["villa_id", "Villa ID", "number"],
       ["subpackage_id", "Sub Package ID", "number"],
       ["price", "Price", "number"],
       ["include_name", "Included", "text"],
@@ -1117,6 +1207,14 @@ function Editor({
     ],
   };
   const list = fields[type] || fields.packages;
+  const entityLabel = type === "villa" ? "Villa" : type === "activity" ? "Activity" : type === "restaurant" ? "Restaurant" : "Data";
+  const requiredKeys: Record<string, string[]> = {
+    villa: ["namevilla", "subcategoryId", "facilityId", "sosId"],
+    activity: ["nameactivity", "subcategoryId", "facilityId"],
+    restaurant: ["namerestaurant", "subcategoryId", "facilityId"],
+  };
+  const isRequiredField = (key: string, fieldType: string) =>
+    (requiredKeys[type] || []).includes(key) || (fieldType === "files" && !value);
   const [form, setForm] = useState<Record<string, any>>(() =>
       Object.fromEntries(list.map(([k]) => [k, value?.[k] ?? ""])),
     ),
@@ -1124,8 +1222,17 @@ function Editor({
     [error, setError] = useState("");
   async function save(e: React.FormEvent) {
     e.preventDefault();
-    setBusy(true);
     setError("");
+    const missing = list.find(([key, , fieldType]) => {
+      if (!isRequiredField(key, fieldType)) return false;
+      const fieldValue = form[key];
+      return Array.isArray(fieldValue) ? fieldValue.length === 0 : !String(fieldValue || "").trim();
+    });
+    if (missing) {
+      setError(`${missing[1]} is required.`);
+      return;
+    }
+    setBusy(true);
     try {
       const hasFile = list.some(([, , t]) => t === "file" || t === "files");
       let body: BodyInit;
@@ -1150,20 +1257,22 @@ function Editor({
     }
   }
   return (
-    <div className="card editor">
+    <div className="card editor resource-editor-card">
       <div className="editor-head">
-        <h3>{value ? "Edit" : "Add"} data</h3>
-        <button onClick={onClose}>
+        <div><span>{value ? "Update information" : `New ${entityLabel.toLowerCase()}`}</span><h3>{value ? "Edit" : "Add"} {entityLabel}</h3></div>
+        <button type="button" aria-label="Close editor" onClick={onClose}>
           <Icon name="close" />
         </button>
       </div>
       <form onSubmit={save} className="form-grid">
+        <p className="form-guidance"><span><b>*</b> Fields marked with an asterisk are required.</span></p>
         {list.map(([key, label, type]) => (
           <label key={key}>
-            {label}
+            <span className="field-label"><span>{label}{isRequiredField(key, type) && <b className="required-mark" aria-label="required">*</b>}</span></span>
             {type === "textarea" ? (
               <textarea
                 value={form[key]}
+                placeholder={`Enter ${label.toLowerCase()}...`}
                 onChange={(e) => setForm({ ...form, [key]: e.target.value })}
               />
             ) : type === "sos-select" ? (
@@ -1172,9 +1281,9 @@ function Editor({
                 value={String(form[key] || "")}
                 onChange={(selected) => setForm({ ...form, [key]: selected })}
               />
-            ) : type === "destination-select" ? (
-              <DestinationSelect
-                options={destinationOptions}
+            ) : type === "villa-select" ? (
+              <VillaSelect
+                options={villaOptions}
                 value={String(form[key] || "")}
                 onChange={(selected) => setForm({ ...form, [key]: selected })}
               />
@@ -1185,37 +1294,7 @@ function Editor({
                 onChange={(selected) => setForm({ ...form, [key]: selected })}
               />
             ) : type === "subcategory-select" ? (
-              <>
-                <select
-                  className="multi-select"
-                  multiple
-                  required
-                  value={String(form[key] || "")
-                    .split(",")
-                    .filter(Boolean)}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      [key]: Array.from(e.target.selectedOptions)
-                        .map((option) => option.value)
-                        .join(","),
-                    })
-                  }
-                >
-                  {subcategoryOptions.map((item) => (
-                    <option
-                      key={item.id_subcategories}
-                      value={item.id_subcategories}
-                    >
-                      {item.namesubcategories}
-                      {item.category?.name ? ` — ${item.category.name}` : ""}
-                    </option>
-                  ))}
-                </select>
-                <small className="field-help">
-                  Hold Ctrl / Cmd to select multiple subcategories.
-                </small>
-              </>
+              <SubcategoryMultiSelect options={subcategoryOptions} value={String(form[key] || "")} onChange={(selected) => setForm({ ...form, [key]: selected })} />
             ) : type === "files" ? (
               <input
                 type="file"
@@ -1229,17 +1308,9 @@ function Editor({
             ) : (
               <input
                 type={type}
+                placeholder={type === "url" ? "https://maps.google.com/..." : `Enter ${label.toLowerCase()}...`}
                 step={type === "number" ? "any" : undefined}
-                required={
-                  !value &&
-                  [
-                    "namedestination",
-                    "nameevent",
-                    "subcategoryId",
-                    "facilityId",
-                    "sosId",
-                  ].includes(key)
-                }
+                required={isRequiredField(key, type)}
                 defaultValue={type === "file" ? undefined : form[key]}
                 onChange={(e) =>
                   setForm({
@@ -1268,9 +1339,11 @@ function Detail({ value, onClose }: { value: any; onClose: () => void }) {
           <Icon name="close" />
         </button>
         <h2>
-          {value.namedestination ||
+          {value.namevilla ||
+            value.nameactivity ||
+            value.namerestaurant ||
             value.nameevent ||
-            value.destination?.namedestination ||
+            value.villa?.namevilla ||
             "Detail"}
         </h2>
         {Object.entries(value)
@@ -1286,13 +1359,28 @@ function Detail({ value, onClose }: { value: any; onClose: () => void }) {
   );
 }
 
+function ModulePlaceholder({ title, description, icon }: { title: string; description: string; icon: string }) {
+  return (
+    <section className="module-placeholder-page">
+      <div className="title-row categories-heading">
+        <div className="page-title"><span>Content management</span><h2>{title}</h2><p>{description}</p></div>
+      </div>
+      <div className="module-placeholder card">
+        <span><Icon name={icon} /></span>
+        <h3>{title} module</h3>
+        <p>This menu is ready. Data management will become available when its backend API is connected.</p>
+      </div>
+    </section>
+  );
+}
+
 function OverviewPage() {
   const [counts, setCounts] = useState([0, 0, 0, 0]),
     [loading, setLoading] = useState(true);
   useEffect(() => {
     Promise.all(
       [
-        "/admin/destination",
+        "/admin/villa",
         "/admin/event",
         "/admin/category",
         "/admin/users",
@@ -1307,7 +1395,7 @@ function OverviewPage() {
         <div className="spinner" />
       ) : (
         <div className="stats">
-          {["Destinations", "Events", "Categories", "Users active"].map(
+          {["Villas", "Events", "Categories", "Users active"].map(
             (x, i) => (
               <div className="card stat" key={x}>
                 <span>{x}</span>
@@ -1321,15 +1409,15 @@ function OverviewPage() {
   );
 }
 
-function DestinationsPage() {
+function VillasPage() {
   return (
     <ResourcePage
       config={{
-        title: "Manage Destinations",
-        path: "/admin/destination",
+        title: "Manage Villas",
+        path: "/admin/villa",
         add: true,
         columns: [
-          { label: "Name", value: (r) => r.namedestination },
+          { label: "Name", value: (r) => r.namevilla },
           {
             label: "Category",
             value: (r) => r.subcategory?.[0]?.category?.name || "-",
@@ -1345,6 +1433,22 @@ function DestinationsPage() {
       }}
     />
   );
+}
+
+function ActivitiesPage() {
+  return <ResourcePage config={{ title: "Manage Activities", path: "/admin/activity", add: true, columns: [
+    { label: "Name", value: (r) => r.nameactivity },
+    { label: "Category", value: (r) => r.subcategory?.[0]?.category?.name || "-" },
+    { label: "Sub Category", value: (r) => r.subcategory?.map((x: any) => x.namesubcategories || x.name).join(", ") || "-" },
+  ] }} />;
+}
+
+function RestaurantsPage() {
+  return <ResourcePage config={{ title: "Manage Restaurants", path: "/admin/restaurant", add: true, columns: [
+    { label: "Name", value: (r) => r.namerestaurant },
+    { label: "Category", value: (r) => r.subcategory?.[0]?.category?.name || "-" },
+    { label: "Sub Category", value: (r) => r.subcategory?.map((x: any) => x.namesubcategories || x.name).join(", ") || "-" },
+  ] }} />;
 }
 
 function EventsPage() {
@@ -1382,7 +1486,7 @@ function PackagesPage() {
         path: "/admin/packages",
         add: true,
         columns: [
-          { label: "Name", value: (r) => r.destination?.namedestination },
+          { label: "Name", value: (r) => r.villa?.namevilla },
           {
             label: "Type",
             value: (r) =>
@@ -1399,131 +1503,318 @@ function PackagesPage() {
 }
 
 function CategoriesPage() {
-  const cats = useRows("/admin/category"),
-    subs = useRows("/admin/subcategory");
+  const cats = useRows("/admin/category");
   const [name, setName] = useState(""),
-    [query, setQuery] = useState("");
+    [query, setQuery] = useState(""),
+    [showCreate, setShowCreate] = useState(false),
+    [editingCategory, setEditingCategory] = useState<any>(null),
+    [editCategoryName, setEditCategoryName] = useState("");
   async function add(path: string, body: any) {
     try {
       await api(path, { method: "POST", body: JSON.stringify(body) });
-      await Promise.all([cats.load(), subs.load()]);
+      await cats.load();
     } catch (e: any) {
       alert(e.message);
     }
   }
   async function del(path: string, id: any) {
-    if (confirm("Are you sure?")) {
+    if (confirm("Delete this item? This action cannot be undone.")) {
       await api(`${path}/${id}`, { method: "DELETE" });
-      await Promise.all([cats.load(), subs.load()]);
+      await cats.load();
+    }
+  }
+  async function updateCategory(e: React.FormEvent) {
+    e.preventDefault();
+    if (!editingCategory || !editCategoryName.trim()) return;
+    try {
+      await api(`/admin/category/${editingCategory.id_categories}`, {
+        method: "PUT",
+        body: JSON.stringify({ name: editCategoryName.trim() }),
+      });
+      setEditingCategory(null);
+      setEditCategoryName("");
+      await cats.load();
+    } catch (e: any) {
+      alert(e.message);
     }
   }
   const shown = cats.rows.filter((x) =>
     x.name?.toLowerCase().includes(query.toLowerCase()),
   );
   return (
-    <section>
-      <div className="toolbar">
-        <input
-          className="search"
-          placeholder="search"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
-      </div>
-      <div className="title-row">
-        <h2>Manage Categories</h2>
-        <div className="inline">
-          <input
-            placeholder="New category"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <button
-            className="primary"
-            onClick={() =>
-              name.trim() &&
-              add("/admin/category", { name: name.trim() }).then(() =>
-                setName(""),
-              )
-            }
-          >
-            <Icon name="plus" />
-            <span>Add Category</span>
-          </button>
+    <section className="categories-page">
+      <div className="title-row categories-heading">
+        <div className="page-title">
+          <span>Content management</span>
+          <h2>Categories</h2>
+          <p>Create and manage your content categories.</p>
+        </div>
+        <div className="category-summary" aria-label="Category summary">
+          <span><b>{cats.rows.length}</b> Categories</span>
         </div>
       </div>
-      <div className="card chips">
-        {shown.map((c) => (
-          <button
-            key={c.id_categories}
-            onClick={() => del("/admin/category", c.id_categories)}
-          >
-            {c.name}
-            <b>
-              <Icon name="close" />
-            </b>
-          </button>
-        ))}
+      <div className="category-controls">
+        <div className="category-search">
+          <Icon name="search" />
+          <input placeholder="Search categories..." aria-label="Search categories" value={query} onChange={(e) => setQuery(e.target.value)} />
+        </div>
+        <button className="primary category-add-trigger" onClick={() => setShowCreate(true)}>
+          <Icon name="plus" />
+          <span>Add Category</span>
+        </button>
       </div>
-      {shown.map((cat) => (
-        <SubCategory
-          key={cat.id_categories}
-          cat={cat}
-          rows={subs.rows}
-          add={add}
-          del={del}
-        />
-      ))}
+      {showCreate && (
+        <div className="modal category-modal" role="presentation" onMouseDown={(e) => {
+          if (e.target === e.currentTarget) setShowCreate(false);
+        }}>
+          <form className="category-modal-card" role="dialog" aria-modal="true" aria-labelledby="new-category-title" onSubmit={(e) => {
+            e.preventDefault();
+            if (name.trim()) add("/admin/category", { name: name.trim() }).then(() => {
+              setName("");
+              setShowCreate(false);
+            });
+          }}>
+            <div className="category-modal-head">
+              <div><span>New category</span><h3 id="new-category-title">Add Category</h3></div>
+              <button type="button" aria-label="Close popup" onClick={() => setShowCreate(false)}><Icon name="close" /></button>
+            </div>
+            <div className="category-modal-body">
+              <label htmlFor="category-name">Category name</label>
+              <input id="category-name" autoFocus placeholder="e.g. Adventure" value={name} onChange={(e) => setName(e.target.value)} />
+              <p>After creating it, you can assign subcategories from the Sub Categories page.</p>
+            </div>
+            <div className="category-modal-actions">
+              <button type="button" className="category-cancel" onClick={() => setShowCreate(false)}>Cancel</button>
+              <button className="primary" type="submit" disabled={!name.trim()}><Icon name="plus" /><span>Add Category</span></button>
+            </div>
+          </form>
+        </div>
+      )}
+      {editingCategory && (
+        <div className="modal category-modal" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget) setEditingCategory(null); }}>
+          <form className="category-modal-card" role="dialog" aria-modal="true" aria-labelledby="edit-category-title" onSubmit={updateCategory}>
+            <div className="category-modal-head"><div><span>Update category</span><h3 id="edit-category-title">Edit Category</h3></div><button type="button" aria-label="Close popup" onClick={() => setEditingCategory(null)}><Icon name="close" /></button></div>
+            <div className="category-modal-body"><label htmlFor="edit-category-name">Category name</label><input id="edit-category-name" autoFocus value={editCategoryName} onChange={(e) => setEditCategoryName(e.target.value)} required /><p>Update the category name, then save your changes.</p></div>
+            <div className="category-modal-actions"><button type="button" className="category-cancel" onClick={() => setEditingCategory(null)}>Cancel</button><button className="primary" type="submit" disabled={!editCategoryName.trim()}><Icon name="check" /><span>Save Changes</span></button></div>
+          </form>
+        </div>
+      )}
+      {cats.loading ? <div className="spinner" /> : cats.error ? (
+        <div className="error-box card"><p>{cats.error}</p><button onClick={cats.load}>Try again</button></div>
+      ) : shown.length ? (
+        <div className="category-list">
+          {shown.map((cat) => <CategoryCard key={cat.id_categories} cat={cat} del={del} onEdit={() => { setEditingCategory(cat); setEditCategoryName(cat.name || ""); }} />)}
+        </div>
+      ) : (
+        <div className="category-empty card"><span><Icon name="category" /></span><h3>{query ? "No matching categories" : "No categories yet"}</h3><p>{query ? "Try another search term." : "Add your first category using the form above."}</p></div>
+      )}
     </section>
   );
 }
-function SubCategory({ cat, rows, add, del }: any) {
-  const [name, setName] = useState("");
+function CategoryCard({ cat, del, onEdit }: any) {
   return (
-    <div className="sub-block">
-      <div className="title-row compact">
-        <h2>Sub tags {cat.name}</h2>
-        <div className="inline">
-          <input
-            placeholder={`New ${cat.name} subcategory`}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <button
-            className="primary small"
-            onClick={() =>
-              name.trim() &&
-              add("/admin/subcategory", {
-                namesubcategories: name.trim(),
-                categoriesId: cat.id_categories,
-              }).then(() => setName(""))
-            }
-          >
-            <Icon name="plus" />
-            <span>Add</span>
-          </button>
+    <article className="category-card card">
+      <div className="category-card-head">
+        <div className="category-card-title"><span><Icon name="category" /></span><div><h3>{cat.name}</h3><p>Category</p></div></div>
+        <div className="category-card-actions"><button className="edit-action" type="button" onClick={onEdit}><Icon name="edit" /><span>Edit</span></button><button className="danger" type="button" onClick={() => del("/admin/category", cat.id_categories)}><Icon name="delete" /><span>Remove</span></button></div>
+      </div>
+    </article>
+  );
+}
+
+function SubCategoriesPage() {
+  const data = useRows("/admin/subcategory"),
+    categories = useRows("/admin/category");
+  const [query, setQuery] = useState(""),
+    [showCreate, setShowCreate] = useState(false),
+    [name, setName] = useState(""),
+    [categoryId, setCategoryId] = useState(""),
+    [selectedNames, setSelectedNames] = useState<string[]>([]),
+    [nameError, setNameError] = useState(""),
+    [detailItem, setDetailItem] = useState<any>(null),
+    [editingItem, setEditingItem] = useState<any>(null),
+    [editName, setEditName] = useState(""),
+    [editCategoryId, setEditCategoryId] = useState("");
+  const subcategoryDropdownRef = useRef<HTMLDetailsElement>(null);
+  const normalizedQuery = query.trim().toLowerCase();
+  const capitalizeName = (value: string) => {
+    const clean = value.trim();
+    return clean ? clean.charAt(0).toUpperCase() + clean.slice(1) : "";
+  };
+  const assignedNames = new Set(
+    data.rows
+      .filter((item) => String(item.category?.id_categories ?? item.categoriesId) === categoryId)
+      .map((item) => String(item.namesubcategories || "").toLowerCase()),
+  );
+  const existingNameOptions = Array.from(
+    new Set(data.rows.map((item) => capitalizeName(item.namesubcategories || "")).filter(Boolean)),
+  ).filter((item) => !assignedNames.has(item.toLowerCase()));
+  const groupedCategories = categories.rows.map((category) => {
+    const allItems = data.rows.filter((item) =>
+      String(item.category?.id_categories ?? item.categoriesId) === String(category.id_categories),
+    );
+    const categoryMatches = category.name?.toLowerCase().includes(normalizedQuery);
+    const items = !normalizedQuery || categoryMatches
+      ? allItems
+      : allItems.filter((item) => item.namesubcategories?.toLowerCase().includes(normalizedQuery));
+    return { category, items, categoryMatches };
+  }).filter((group) => !normalizedQuery || group.categoryMatches || group.items.length);
+  async function create(e: React.FormEvent) {
+    e.preventDefault();
+    const manualName = capitalizeName(name);
+    const canonicalManualName = existingNameOptions.find((item) => item.toLowerCase() === manualName.toLowerCase()) || manualName;
+    const names = Array.from(new Set([...selectedNames, ...(canonicalManualName ? [canonicalManualName] : [])]))
+      .filter((item) => !assignedNames.has(item.toLowerCase()));
+    if (!names.length || !categoryId) return;
+    try {
+      await Promise.all(names.map((subcategoryName) => api("/admin/subcategory", {
+        method: "POST",
+        body: JSON.stringify({
+          namesubcategories: subcategoryName,
+          categoriesId: Number(categoryId),
+        }),
+      })));
+      setName("");
+      setNameError("");
+      setSelectedNames([]);
+      setCategoryId("");
+      setShowCreate(false);
+      await data.load();
+    } catch (e: any) {
+      alert(e.message);
+    }
+  }
+  async function remove(item: any) {
+    if (!confirm(`Delete subcategory "${item.namesubcategories}"?`)) return;
+    try {
+      await api(`/admin/subcategory/${item.id_subcategories}`, { method: "DELETE" });
+      await data.load();
+    } catch (e: any) {
+      alert(e.message);
+    }
+  }
+  function addManualName() {
+    const next = capitalizeName(name);
+    if (!next) return;
+    if (assignedNames.has(next.toLowerCase())) {
+      setNameError(`"${next}" already exists in this category.`);
+      return;
+    }
+    const canonicalName = existingNameOptions.find((item) => item.toLowerCase() === next.toLowerCase()) || next;
+    setSelectedNames((current) => current.some((item) => item.toLowerCase() === canonicalName.toLowerCase()) ? current : [...current, canonicalName]);
+    setName("");
+    setNameError("");
+  }
+  async function updateSubcategory(e: React.FormEvent) {
+    e.preventDefault();
+    if (!editingItem || !editName.trim() || !editCategoryId) return;
+    try {
+      await api(`/admin/subcategory/${editingItem.id_subcategories}`, {
+        method: "PUT",
+        body: JSON.stringify({ namesubcategories: editName.trim(), categoriesId: Number(editCategoryId) }),
+      });
+      setEditingItem(null);
+      await data.load();
+    } catch (e: any) {
+      alert(e.message);
+    }
+  }
+  return (
+    <section className="categories-page">
+      <div className="title-row categories-heading">
+        <div className="page-title">
+          <span>Content management</span>
+          <h2>Sub Categories</h2>
+          <p>Manage subcategories and assign each one to a parent category.</p>
         </div>
+        <div className="category-summary"><span><b>{data.rows.length}</b> Subcategories</span><i /><span><b>{categories.rows.length}</b> Categories</span></div>
       </div>
-      <div className="card chips">
-        {rows
-          .filter(
-            (s: any) =>
-              (s.category?.id_categories ?? s.categoriesId) ===
-              cat.id_categories,
-          )
-          .map((s: any) => (
-            <button
-              key={s.id_subcategories}
-              onClick={() => del("/admin/subcategory", s.id_subcategories)}
-            >
-              {s.namesubcategories}
-              <b>
-                <Icon name="close" />
-              </b>
-            </button>
+      <div className="category-controls">
+        <div className="category-search"><Icon name="search" /><input placeholder="Search subcategories..." aria-label="Search subcategories" value={query} onChange={(e) => setQuery(e.target.value)} /></div>
+        <button className="primary category-add-trigger" onClick={() => setShowCreate(true)}><Icon name="plus" /><span>Add Subcategory</span></button>
+      </div>
+      {showCreate && (
+        <div className="modal category-modal" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget) setShowCreate(false); }}>
+          <form className="category-modal-card" role="dialog" aria-modal="true" aria-labelledby="new-subcategory-title" onSubmit={create}>
+            <div className="category-modal-head"><div><span>New subcategory</span><h3 id="new-subcategory-title">Add Subcategory</h3></div><button type="button" aria-label="Close popup" onClick={() => setShowCreate(false)}><Icon name="close" /></button></div>
+            <div className="category-modal-body subcategory-modal-fields">
+              <label htmlFor="subcategory-parent">Parent category</label>
+              <select id="subcategory-parent" value={categoryId} onChange={(e) => { setCategoryId(e.target.value); setSelectedNames([]); setName(""); setNameError(""); }} required>
+                <option value="">Select a category</option>
+                {categories.rows.map((category) => <option key={category.id_categories} value={category.id_categories}>{category.name}</option>)}
+              </select>
+              <label>Choose existing subcategories</label>
+              <details className="subcategory-dropdown" ref={subcategoryDropdownRef}>
+                <summary>{selectedNames.length ? `${selectedNames.length} selected` : "Select one or more subcategories"}<span>?</span></summary>
+                <div className="subcategory-dropdown-menu">
+                  {!categoryId ? <p>Select a parent category first.</p> : existingNameOptions.length ? existingNameOptions.map((item) => {
+                    const checked = selectedNames.includes(item);
+                    return <label className={checked ? "selected" : ""} key={item}><input type="checkbox" checked={checked} onChange={() => setSelectedNames((current) => current.includes(item) ? current.filter((value) => value !== item) : [...current, item])} /><span>{item}</span>{checked && <b>?</b>}</label>;
+                  }) : <p>No other subcategories available.</p>}
+                  {categoryId && <button className="subcategory-dropdown-done" type="button" onClick={() => subcategoryDropdownRef.current?.removeAttribute("open")}>Done</button>}
+                </div>
+              </details>
+              <label htmlFor="subcategory-name">Or add a new subcategory</label>
+              <div className={nameError ? "manual-subcategory-entry invalid" : "manual-subcategory-entry"}><input id="subcategory-name" placeholder="e.g. luxury" value={name} onChange={(e) => { const value = e.target.value; setName(value ? value.charAt(0).toUpperCase() + value.slice(1) : ""); setNameError(""); }} onKeyDown={(e) => { if (e.key === "Enter" && name.trim()) { e.preventDefault(); addManualName(); } }} /><button type="button" disabled={!name.trim() || !categoryId} onClick={addManualName}><Icon name="plus" /> Add</button></div>
+              {nameError && <span className="subcategory-name-error">{nameError}</span>}
+              {selectedNames.length > 0 && <div className="selected-subcategory-names">{selectedNames.map((item) => <span key={item}>{item}<button type="button" aria-label={`Remove ${item}`} onClick={() => setSelectedNames((current) => current.filter((value) => value !== item))}><Icon name="close" /></button></span>)}</div>}
+              <p>Select existing names or type a new one. The first letter is capitalized automatically.</p>
+            </div>
+            <div className="category-modal-actions"><button type="button" className="category-cancel" onClick={() => setShowCreate(false)}>Cancel</button><button className="primary" type="submit" disabled={(!name.trim() && !selectedNames.length) || !categoryId}><Icon name="plus" /><span>Add {selectedNames.length > 1 ? `${selectedNames.length} Subcategories` : "Subcategory"}</span></button></div>
+          </form>
+        </div>
+      )}
+      {detailItem && (
+        <div className="modal category-modal" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget) setDetailItem(null); }}>
+          <div className="category-modal-card" role="dialog" aria-modal="true" aria-labelledby="subcategory-detail-title">
+            <div className="category-modal-head"><div><span>Subcategory information</span><h3 id="subcategory-detail-title">Subcategory Detail</h3></div><button type="button" aria-label="Close popup" onClick={() => setDetailItem(null)}><Icon name="close" /></button></div>
+            <div className="subcategory-detail-body">
+              <div><span>Name</span><b>{detailItem.namesubcategories}</b></div>
+              <div><span>Parent category</span><b>{detailItem.category?.name || categories.rows.find((category) => String(category.id_categories) === String(detailItem.categoriesId))?.name || "—"}</b></div>
+            </div>
+            <div className="category-modal-actions"><button type="button" className="category-cancel" onClick={() => setDetailItem(null)}>Close</button></div>
+          </div>
+        </div>
+      )}
+      {editingItem && (
+        <div className="modal category-modal" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget) setEditingItem(null); }}>
+          <form className="category-modal-card" role="dialog" aria-modal="true" aria-labelledby="edit-subcategory-title" onSubmit={updateSubcategory}>
+            <div className="category-modal-head"><div><span>Update subcategory</span><h3 id="edit-subcategory-title">Edit Subcategory</h3></div><button type="button" aria-label="Close popup" onClick={() => setEditingItem(null)}><Icon name="close" /></button></div>
+            <div className="category-modal-body subcategory-modal-fields">
+              <label htmlFor="edit-subcategory-parent">Parent category</label>
+              <select id="edit-subcategory-parent" value={editCategoryId} onChange={(e) => setEditCategoryId(e.target.value)} required>{categories.rows.map((category) => <option key={category.id_categories} value={category.id_categories}>{category.name}</option>)}</select>
+              <label htmlFor="edit-subcategory-name">Subcategory name</label>
+              <input id="edit-subcategory-name" autoFocus value={editName} onChange={(e) => setEditName(e.target.value)} required />
+            </div>
+            <div className="category-modal-actions"><button type="button" className="category-cancel" onClick={() => setEditingItem(null)}>Cancel</button><button className="primary" type="submit" disabled={!editName.trim() || !editCategoryId}><Icon name="check" /><span>Save Changes</span></button></div>
+          </form>
+        </div>
+      )}
+      {data.loading || categories.loading ? <div className="spinner" /> : data.error || categories.error ? (
+        <div className="error-box card"><p>{data.error || categories.error}</p><button onClick={() => Promise.all([data.load(), categories.load()])}>Try again</button></div>
+      ) : groupedCategories.length ? (
+        <div className="subcategory-groups">
+          {groupedCategories.map(({ category, items }) => (
+            <article className="subcategory-group-card card" key={category.id_categories}>
+              <div className="subcategory-group-head">
+                <span className="subcategory-group-icon"><Icon name="category" /></span>
+                <div><h3>{category.name}</h3><p>{items.length} {items.length === 1 ? "subcategory" : "subcategories"}</p></div>
+              </div>
+              <div className="subcategory-group-body">
+                <span className="subcategory-group-label">Subcategories</span>
+                {items.length ? (
+                  <div className="subcategory-manage-list">
+                    {items.map((item) => <div className="subcategory-manage-row" key={item.id_subcategories}><b>{item.namesubcategories}</b><div className="subcategory-row-actions"><button className="detail-action" type="button" onClick={() => setDetailItem(item)}><Icon name="eye" /><span>Detail</span></button><button className="edit-action" type="button" onClick={() => { setEditingItem(item); setEditName(item.namesubcategories || ""); setEditCategoryId(String(item.category?.id_categories ?? item.categoriesId ?? "")); }}><Icon name="edit" /><span>Edit</span></button><button className="danger" type="button" onClick={() => remove(item)}><Icon name="delete" /><span>Delete</span></button></div></div>)}
+                  </div>
+                ) : <p className="no-subcategories">No subcategories added yet.</p>}
+              </div>
+            </article>
           ))}
-      </div>
-    </div>
+        </div>
+      ) : (
+        <div className="category-empty card"><span><Icon name="subcategory" /></span><h3>{query ? "No matching subcategories" : "No subcategories yet"}</h3><p>{query ? "Try another search term." : "Add your first subcategory using the button above."}</p></div>
+      )}
+    </section>
   );
 }
 

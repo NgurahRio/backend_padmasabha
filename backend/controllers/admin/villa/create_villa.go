@@ -1,4 +1,4 @@
-package destination
+package villa
 
 import (
 	"backend/config"
@@ -16,14 +16,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CreateDestination(c *gin.Context) {
+func CreateVilla(c *gin.Context) {
 	rawSubcategory := c.PostForm("subcategoryId")
 	if rawSubcategory == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "subcategoryId wajib diisi (contoh: 1,4,7)"})
 		return
 	}
 
-	name := c.PostForm("namedestination")
+	name := c.PostForm("namevilla")
 	description := c.PostForm("description")
 	do := c.PostForm("do")
 	dont := c.PostForm("dont")
@@ -102,7 +102,7 @@ func CreateDestination(c *gin.Context) {
 		imageBase64 = string(jsonBytes)
 	}
 
-	destination := models.Destination{
+	villa := models.Villa{
 		SubcategoryID: rawSubcategory,
 		Name:          name,
 		Description:   description,
@@ -118,17 +118,17 @@ func CreateDestination(c *gin.Context) {
 		UpdatedAt:     time.Now().Format("2006-01-02 15:04:05"),
 	}
 
-	if err := config.DB.Create(&destination).Error; err != nil {
+	if err := config.DB.Create(&villa).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Gagal menambahkan destinasi",
+			"message": "Gagal menambahkan villa",
 			"error":   err.Error(),
 		})
 		return
 	}
 
-	if err := config.DB.Preload("Sos").First(&destination, destination.ID).Error; err != nil {
+	if err := config.DB.Preload("Sos").First(&villa, villa.ID).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Gagal memuat data relasi destinasi",
+			"message": "Gagal memuat data relasi villa",
 			"error":   err.Error(),
 		})
 		return
@@ -195,30 +195,30 @@ func CreateDestination(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
-		"message": "Destination berhasil ditambahkan",
+		"message": "Villa berhasil ditambahkan",
 		"data": gin.H{
-			"destination": gin.H{
-				"id_destination":  destination.ID,
-				"namedestination": destination.Name,
-				"description":     destination.Description,
-				"images":          imagesBase64,
-				"do":              destination.Do,
-				"dont":            destination.Dont,
-				"safety":          destination.Safety,
-				"maps":            destination.Maps,
-				"sosId":           destination.SosID,
-				"facilityId":      destination.FacilityID,
-				"subcategoryId":   destination.SubcategoryID,
-				"subcategory":     subResp,
-				"operational":     destination.Operational,
-				"created_at":      destination.CreatedAt,
-				"updated_at":      destination.UpdatedAt,
-				"facilities":      facilityResp,
+			"villa": gin.H{
+				"id_villa":      villa.ID,
+				"namevilla":     villa.Name,
+				"description":   villa.Description,
+				"images":        imagesBase64,
+				"do":            villa.Do,
+				"dont":          villa.Dont,
+				"safety":        villa.Safety,
+				"maps":          villa.Maps,
+				"sosId":         villa.SosID,
+				"facilityId":    villa.FacilityID,
+				"subcategoryId": villa.SubcategoryID,
+				"subcategory":   subResp,
+				"operational":   villa.Operational,
+				"created_at":    villa.CreatedAt,
+				"updated_at":    villa.UpdatedAt,
+				"facilities":    facilityResp,
 				"sos": gin.H{
-					"id_sos":     destination.Sos.ID,
-					"name_sos":   destination.Sos.Name,
-					"alamat_sos": destination.Sos.Alamat,
-					"telepon":    destination.Sos.Telepon,
+					"id_sos":     villa.Sos.ID,
+					"name_sos":   villa.Sos.Name,
+					"alamat_sos": villa.Sos.Alamat,
+					"telepon":    villa.Sos.Telepon,
 				},
 			},
 		},

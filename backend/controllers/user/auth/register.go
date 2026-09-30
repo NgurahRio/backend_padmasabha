@@ -41,7 +41,7 @@ func RegisterUser(c *gin.Context) {
 		Username: input.Username,
 		Email:    input.Email,
 		Password: string(hashedPassword),
-		RoleID:   1, 
+		RoleID:   1,
 	}
 
 	if err := config.DB.Create(&newUser).Error; err != nil {

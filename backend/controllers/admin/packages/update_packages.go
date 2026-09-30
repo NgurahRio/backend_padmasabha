@@ -15,28 +15,28 @@ import (
 )
 
 func UpdatePackages(c *gin.Context) {
-	destIDStr := c.Param("destinationId")
+	destIDStr := c.Param("villaId")
 	if destIDStr == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "destinationId wajib diisi"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "villaId wajib diisi"})
 		return
 	}
 
 	destID, convErr := strconv.Atoi(destIDStr)
 	if convErr != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "destinationId harus berupa angka"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "villaId harus berupa angka"})
 		return
 	}
 
-	var dest models.Destination
-	if err := config.DB.First(&dest, "id_destination = ?", destID).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"message": "destinationId tidak ditemukan di database"})
+	var dest models.Villa
+	if err := config.DB.First(&dest, "id_villa = ?", destID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "villaId tidak ditemukan di database"})
 		return
 	}
 
 	var pkg models.Packages
-	if err := config.DB.First(&pkg, "destinationId = ?", destID).Error; err != nil {
+	if err := config.DB.First(&pkg, "villaId = ?", destID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
-			"message": "Package untuk destinationId ini belum ada",
+			"message": "Package untuk villaId ini belum ada",
 		})
 		return
 	}
@@ -169,7 +169,7 @@ func UpdatePackages(c *gin.Context) {
 		if _, exists := priceMap[subID]; !exists {
 			priceMap[subID] = priceVal
 		}
-		
+
 		file := files[i]
 		opened, openErr := file.Open()
 		if openErr != nil {
@@ -222,7 +222,7 @@ func UpdatePackages(c *gin.Context) {
 		"message": "Package berhasil diupdate",
 		"data": gin.H{
 			"id_packages":     pkg.ID,
-			"destinationId":   pkg.DestinationID,
+			"villaId":         pkg.VillaID,
 			"subpackage_data": updatedData,
 		},
 	})

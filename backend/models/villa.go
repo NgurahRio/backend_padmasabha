@@ -1,9 +1,9 @@
 package models
 
-type Destination struct {
-	ID            uint   `gorm:"primaryKey;column:id_destination" json:"id_destination"`
+type Villa struct {
+	ID            uint   `gorm:"primaryKey;column:id_villa" json:"id_villa"`
 	SubcategoryID string `gorm:"column:subcategoryId;type:longtext" json:"subcategoryId"`
-	Name          string `gorm:"column:namedestination" json:"namedestination"`
+	Name          string `gorm:"column:namevilla" json:"namevilla"`
 	Description   string `gorm:"column:description" json:"description"`
 	Imagedata     string `gorm:"column:imagedata" json:"imagedata"`
 	Do            string `gorm:"column:do" json:"do"`
@@ -17,10 +17,10 @@ type Destination struct {
 	Operational   string `gorm:"column:operational" json:"operational"`
 
 	Sos           SOS           `gorm:"foreignKey:SosID;references:ID" json:"sos,omitempty"`
-	Subcategories []Subcategory `gorm:"many2many:destination_subcategories;joinForeignKey:ID;joinReferences:ID" json:"subcategories,omitempty"`
-	Facilities    []Facility    `gorm:"many2many:destination_facilities;joinForeignKey:ID;joinReferences:IDFacility" json:"facilities,omitempty"`
+	Subcategories []Subcategory `gorm:"many2many:villa_subcategories;joinForeignKey:ID;joinReferences:ID" json:"subcategories,omitempty"`
+	Facilities    []Facility    `gorm:"many2many:villa_facilities;joinForeignKey:ID;joinReferences:IDFacility" json:"facilities,omitempty"`
 }
 
-func (Destination) TableName() string {
-	return "destination"
+func (Villa) TableName() string {
+	return "villa"
 }

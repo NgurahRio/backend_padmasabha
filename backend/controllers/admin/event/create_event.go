@@ -13,7 +13,7 @@ import (
 )
 
 func CreateEvent(c *gin.Context) {
-	destinationIDStr := c.PostForm("destinationId")
+	villaIDStr := c.PostForm("villaId")
 	nameEvent := c.PostForm("nameevent")
 	startDate := c.PostForm("start_date")
 	endDate := c.PostForm("end_date")
@@ -34,19 +34,19 @@ func CreateEvent(c *gin.Context) {
 	}
 
 	var destIDPointer *uint = nil
-	if destinationIDStr != "" {
-		dID, convErr := strconv.Atoi(destinationIDStr)
+	if villaIDStr != "" {
+		dID, convErr := strconv.Atoi(villaIDStr)
 		if convErr != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
-				"message": "destinationId harus angka",
+				"message": "villaId harus angka",
 			})
 			return
 		}
 
-		var destCheck models.Destination
-		if err := config.DB.First(&destCheck, "id_destination = ?", dID).Error; err != nil {
+		var destCheck models.Villa
+		if err := config.DB.First(&destCheck, "id_villa = ?", dID).Error; err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
-				"message": "destinationId tidak ditemukan di database",
+				"message": "villaId tidak ditemukan di database",
 			})
 			return
 		}
@@ -109,7 +109,7 @@ func CreateEvent(c *gin.Context) {
 	}
 
 	if destIDPointer != nil {
-		event.DestinationID = destIDPointer
+		event.VillaID = destIDPointer
 	}
 
 	if err := config.DB.Create(&event).Error; err != nil {
@@ -119,10 +119,10 @@ func CreateEvent(c *gin.Context) {
 		return
 	}
 
-	if event.DestinationID != nil {
-		if err := config.DB.Preload("Destination").First(&event, event.ID).Error; err != nil {
+	if event.VillaID != nil {
+		if err := config.DB.Preload("Villa").First(&event, event.ID).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"message": "Gagal memuat data destinasi",
+				"message": "Gagal memuat data villa",
 			})
 			return
 		}
