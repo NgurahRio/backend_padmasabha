@@ -6,8 +6,6 @@ const nav = [
   ["facility", "Facilities"],
   ["category", "Categories"],
   ["subcategory", "Sub Categories"],
-  ["package", "Packages"],
-  ["subpackage", "Sub Packages"],
   ["sos", "SOS"],
   ["user", "Users"],
 ];
@@ -98,13 +96,11 @@ function AdminPage({ active }: { active: string }) {
     activity: <ActivitiesPage />,
     restaurant: <RestaurantsPage />,
     event: <EventsPage />,
-    package: <PackagesPage />,
     category: <CategoriesPage />,
     subcategory: <SubCategoriesPage />,
     user: <UsersPage />,
     sos: <SOSPage />,
     facility: <FacilitiesPage />,
-    subpackage: <SubPackagesPage />,
   };
   return pages[active] || <OverviewPage />;
 }
@@ -491,69 +487,6 @@ function SOSSelect({
     </div>
   );
 }
-function VillaSelect({
-  options,
-  value,
-  onChange,
-}: {
-  options: any[];
-  value: string;
-  onChange: (value: string) => void;
-}) {
-  const [open, setOpen] = useState(false),
-    selected = options.find((item) => String(item.id_villa) === value);
-  return (
-    <div className="sos-picker">
-      <button
-        type="button"
-        className={open ? "sos-trigger open" : "sos-trigger"}
-        aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
-      >
-        <span>
-          {selected ? (
-            <>
-              <b>{selected.namevilla}</b>
-            </>
-          ) : (
-            <span className="picker-placeholder">Choose villa</span>
-          )}
-        </span>
-        <span className="picker-chevron">?</span>
-      </button>
-      {open && (
-        <div className="sos-dropdown">
-          <div className="sos-options">
-            {options.length ? (
-              options.map((item) => {
-                const id = String(item.id_villa),
-                  active = id === value;
-                return (
-                  <button
-                    type="button"
-                    className={active ? "sos-option selected" : "sos-option"}
-                    key={id}
-                    onClick={() => {
-                      onChange(id);
-                      setOpen(false);
-                    }}
-                  >
-                    <span>
-                      <b>{item.namevilla}</b>
-                    </span>
-                    {active && <i>?</i>}
-                  </button>
-                );
-              })
-            ) : (
-              <p className="facility-empty">No villas available</p>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
 function FacilityMultiSelect({
   options,
   value,
@@ -841,12 +774,6 @@ function Icon({ name }: { name: string }) {
         <path d="M16 3v4M8 3v4M3 10h18" />
       </>
     ),
-    package: (
-      <>
-        <path d="m4 7 8-4 8 4-8 4-8-4Z" />
-        <path d="m4 7 8 4 8-4v10l-8 4-8-4V7Z" />
-      </>
-    ),
     category: <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" />,
     subcategory: (
       <>
@@ -867,12 +794,6 @@ function Icon({ name }: { name: string }) {
       </>
     ),
     facility: <path d="M4 21V5l8-3 8 3v16M10 21v-4h4v4" />,
-    subpackage: (
-      <>
-        <path d="M12 3 3 8l9 5 9-5-9-5Z" />
-        <path d="m3 12 9 5 9-5M3 16l9 5 9-5" />
-      </>
-    ),
     more: (
       <>
         <circle cx="5" cy="12" r="1" fill="currentColor" stroke="none" />
@@ -965,7 +886,7 @@ function ResourcePage({ config }: { config: ResourceConfig }) {
     [editing, setEditing] = useState<any>(null),
     [show, setShow] = useState(false),
     [detail, setDetail] = useState<any>(null);
-  const usesPopupEditor = ["/admin/villa", "/admin/activity", "/admin/restaurant", "/admin/event", "/admin/facility", "/admin/sos", "/admin/packages", "/admin/subpackage"].includes(config.path);
+  const usesPopupEditor = ["/admin/villa", "/admin/activity", "/admin/restaurant", "/admin/event", "/admin/facility", "/admin/sos"].includes(config.path);
   const filtered = useMemo(
     () =>
       data.rows.filter((r) =>
@@ -1017,7 +938,7 @@ function ResourcePage({ config }: { config: ResourceConfig }) {
       </div>
       {show && (
         usesPopupEditor ? (
-          <div className={`modal resource-editor-overlay${config.path === "/admin/facility" ? " facility-editor-overlay" : config.path === "/admin/sos" ? " sos-editor-overlay" : config.path === "/admin/subpackage" ? " subpackage-editor-overlay" : config.path === "/admin/packages" ? " packages-editor-overlay" : config.path === "/admin/restaurant" ? " restaurant-editor-overlay" : config.path === "/admin/activity" ? " activity-editor-overlay" : config.path === "/admin/villa" ? " villa-editor-overlay" : ""}`} role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget) setShow(false); }}>
+          <div className={`modal resource-editor-overlay${config.path === "/admin/facility" ? " facility-editor-overlay" : config.path === "/admin/sos" ? " sos-editor-overlay" : config.path === "/admin/restaurant" ? " restaurant-editor-overlay" : config.path === "/admin/activity" ? " activity-editor-overlay" : config.path === "/admin/villa" ? " villa-editor-overlay" : ""}`} role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget) setShow(false); }}>
             <Editor config={config} value={editing} onClose={() => setShow(false)} onSaved={() => { setShow(false); data.load(); }} />
           </div>
         ) : (
@@ -1109,9 +1030,7 @@ function Editor({
 }) {
   const type = config.path.split("/").pop()!;
   const [facilityOptions, setFacilityOptions] = useState<any[]>([]),
-    [subcategoryOptions, setSubcategoryOptions] = useState<any[]>([]),
-    [villaOptions, setVillaOptions] = useState<any[]>([]),
-    [subpackageOptions, setSubpackageOptions] = useState<any[]>([]);
+    [subcategoryOptions, setSubcategoryOptions] = useState<any[]>([]);
   useEffect(() => {
     if (["villa", "activity", "restaurant"].includes(type)) {
       Promise.all([
@@ -1121,14 +1040,6 @@ function Editor({
         .then(([facilities, subcategories]) => {
           setFacilityOptions(unwrap(facilities));
           setSubcategoryOptions(unwrap(subcategories));
-        })
-        .catch(() => {});
-    }
-    if (type === "packages") {
-      Promise.all([api("/admin/villa"), api("/admin/subpackage")])
-        .then(([villas, subpackages]) => {
-          setVillaOptions(unwrap(villas));
-          setSubpackageOptions(unwrap(subpackages));
         })
         .catch(() => {});
     }
@@ -1177,40 +1088,20 @@ function Editor({
       ["namefacility", "Name", "text"],
       ["icon", "Icon", "file"],
     ],
-    subpackage: [
-      ["jenispackage", "Name", "text"],
-      ["image", "Icon", "file"],
-    ],
-    packages: [
-      ["villaId", "Villa", "villa-select"],
-      ["subPackageId", "Sub Package", "subpackage-select"],
-      ["price", "Price", "number"],
-      ["includeName", "Included item", "text"],
-      ["image", "Image", "file"],
-    ],
   };
-  const list = fields[type] || fields.packages;
-  const entityLabel = type === "villa" ? "Villa" : type === "activity" ? "Activity" : type === "restaurant" ? "Restaurant" : type === "event" ? "Event" : type === "facility" ? "Facility" : type === "sos" ? "SOS" : type === "packages" ? "Package" : type === "subpackage" ? "Sub Package" : "Data";
+  const list = fields[type] || [];
+  const entityLabel = type === "villa" ? "Villa" : type === "activity" ? "Activity" : type === "restaurant" ? "Restaurant" : type === "event" ? "Event" : type === "facility" ? "Facility" : type === "sos" ? "SOS" : "Data";
   const requiredKeys: Record<string, string[]> = {
     villa: ["namevilla", "subcategoryId", "facilityId"],
     activity: ["nameactivity", "subcategoryId", "facilityId"],
     restaurant: ["namerestaurant", "subcategoryId", "facilityId"],
     event: ["nameevent", "start_date", "end_date", "start_time", "end_time"],
     sos: ["name_sos", "alamat_sos", "telepon"],
-    subpackage: ["jenispackage"],
-    packages: ["villaId", "subPackageId", "price"],
   };
   const isRequiredField = (key: string, fieldType: string) =>
-    (requiredKeys[type] || []).includes(key) || ((fieldType === "files" || fieldType === "file") && (!value || type === "packages"));
+    (requiredKeys[type] || []).includes(key) || ((fieldType === "files" || fieldType === "file") && !value);
   const [form, setForm] = useState<Record<string, any>>(() => {
       const initial = Object.fromEntries(list.map(([k]) => [k, value?.[k] ?? ""]));
-      if (type === "packages" && value) {
-        const subPackageId = Object.keys(value.subpackage_data || {})[0] || "";
-        const detail = value.subpackage_data?.[subPackageId];
-        initial.subPackageId = subPackageId;
-        initial.price = detail?.price ?? "";
-        initial.includeName = detail?.include?.[0]?.name ?? "";
-      }
       return initial;
     }),
     [busy, setBusy] = useState(false),
@@ -1269,17 +1160,6 @@ function Editor({
                 placeholder={`Enter ${label.toLowerCase()}...`}
                 onChange={(e) => setForm({ ...form, [key]: e.target.value })}
               />
-            ) : type === "villa-select" ? (
-              <VillaSelect
-                options={villaOptions}
-                value={String(form[key] || "")}
-                onChange={(selected) => setForm({ ...form, [key]: selected })}
-              />
-            ) : type === "subpackage-select" ? (
-              <select value={String(form[key] || "")} onChange={(e) => setForm({ ...form, [key]: e.target.value })} required>
-                <option value="">Choose sub package</option>
-                {subpackageOptions.map((item) => <option key={item.id_subpackage} value={item.id_subpackage}>{item.jenispackage}</option>)}
-              </select>
             ) : type === "facility-select" ? (
               <FacilityMultiSelect
                 options={facilityOptions}
@@ -1512,30 +1392,6 @@ function EventsPage() {
               r.price == null
                 ? "-"
                 : `Rp ${Number(r.price).toLocaleString("id-ID")}`,
-          },
-        ],
-      }}
-    />
-  );
-}
-
-function PackagesPage() {
-  return (
-    <ResourcePage
-      config={{
-        title: "Manage Your Packages",
-        path: "/admin/packages",
-        add: true,
-        columns: [
-          { label: "Villa", value: (r) => r.villa?.namevilla || (r.villaId ? `Villa #${r.villaId}` : "-") },
-          {
-            label: "Type",
-            value: (r) =>
-              r.subpackages?.map((x: any) => x.jenispackage).join(", ") || "-",
-          },
-          {
-            label: "Total Types",
-            value: (r) => Object.keys(r.subpackage_data || {}).length,
           },
         ],
       }}
@@ -1862,86 +1718,80 @@ function SubCategoriesPage() {
 function UsersPage() {
   const data = useRows("/admin/users"),
     [q, setQ] = useState("");
-  const users = data.rows.filter((x) =>
-    JSON.stringify(x).toLowerCase().includes(q.toLowerCase()),
+  const query = q.trim().toLowerCase();
+  const users = data.rows.filter((user) =>
+    [user.username, user.email, user.roleName]
+      .some((value) => String(value || "").toLowerCase().includes(query)),
   );
-  const table = (title: string, list: any[], normal = false) => (
+  const table = (title: string, list: any[]) => (
     <>
       <h2 className="user-heading">{title}</h2>
       <div className="card table-wrap">
         <table>
           <thead>
             <tr>
-              {normal && <th>Image</th>}
+              <th>Image</th>
               <th>Name</th>
               <th>Email</th>
               <th>Role</th>
-              {normal && <th>Action</th>}
             </tr>
           </thead>
           <tbody>
             {list.map((u) => (
               <tr key={u.id_users}>
-                {normal && (
-                  <td>
+                <td>
+                  {u.image ? (
+                    <img
+                      className="avatar-image"
+                      src={u.image.startsWith("http") || u.image.startsWith("data:") ? u.image : `data:image/webp;base64,${u.image}`}
+                      alt={`${u.username || "User"} profile`}
+                    />
+                  ) : (
                     <span className="avatar">
                       <Icon name="user" />
                     </span>
-                  </td>
-                )}
-                <td>{u.username}</td>
-                <td>{u.email}</td>
-                <td>{u.roleId === 2 ? "Admin" : "User"}</td>
-                {normal && (
-                  <td>
-                    <button
-                      className="danger user-ban"
-                      onClick={async () => {
-                        if (confirm("Ban this user?")) {
-                          await api(`/admin/users/${u.id_users}`, {
-                            method: "DELETE",
-                          });
-                          data.load();
-                        }
-                      }}
-                    >
-                      <Icon name="delete" />
-                      <span>Ban</span>
-                    </button>
-                  </td>
-                )}
+                  )}
+                </td>
+                <td>{u.username || "-"}</td>
+                <td>{u.email || "-"}</td>
+                <td>{u.roleName || (Number(u.roleId) === 2 ? "Admin" : "User")}</td>
               </tr>
             ))}
           </tbody>
         </table>
+        {!list.length && <p className="empty">{query ? "No matching users" : `No ${title.toLowerCase()} accounts found`}</p>}
       </div>
     </>
   );
   return (
     <section>
-      <div className="toolbar">
-        <input
-          className="search"
-          placeholder="search"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-        />
-      </div>
       <div className="title-row">
         <h2>Manage Users</h2>
+        <div className="page-actions">
+          <div className="toolbar">
+            <input
+              className="search"
+              placeholder="Search users..."
+              aria-label="Search users"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+            />
+          </div>
+        </div>
       </div>
       {data.loading ? (
         <div className="spinner" />
+      ) : data.error ? (
+        <div className="error-box card"><p>{data.error}</p><button onClick={data.load}>Try again</button></div>
       ) : (
         <>
           {table(
             "Admin",
-            users.filter((x) => x.roleId === 2),
+            users.filter((x) => Number(x.roleId) === 2),
           )}
           {table(
             "User",
-            users.filter((x) => x.roleId === 1),
-            true,
+            users.filter((x) => Number(x.roleId) === 1),
           )}
         </>
       )}
@@ -1998,34 +1848,3 @@ function FacilitiesPage() {
   );
 }
 
-function SubPackagesPage() {
-  return (
-    <ResourcePage
-      config={{
-        title: "Manage Sub Packages",
-        path: "/admin/subpackage",
-        add: true,
-        columns: [
-          {
-            label: "Icon",
-            value: (r) =>
-              r.image ? (
-                <img
-                  className="thumb"
-                  src={
-                    r.image.startsWith("http")
-                      ? r.image
-                      : `data:image/webp;base64,${r.image}`
-                  }
-                  alt=""
-                />
-              ) : (
-                "-"
-              ),
-          },
-          { label: "Name", value: (r) => r.jenispackage },
-        ],
-      }}
-    />
-  );
-}

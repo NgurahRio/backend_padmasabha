@@ -9,11 +9,12 @@ import (
 )
 
 type UserResponse struct {
-	ID       uint   `json:"id_users"`
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	RoleID   uint   `json:"roleId"`
-	RoleName string `json:"roleName"`
+	ID       uint    `json:"id_users"`
+	Username string  `json:"username"`
+	Email    string  `json:"email"`
+	RoleID   uint    `json:"roleId"`
+	RoleName string  `json:"roleName"`
+	Image    *string `json:"image,omitempty"`
 }
 
 func GetAllUsers(c *gin.Context) {
@@ -31,6 +32,7 @@ func GetAllUsers(c *gin.Context) {
 			Email:    u.Email,
 			RoleID:   u.RoleID,
 			RoleName: u.Role.Name,
+			Image:    u.Image,
 		})
 	}
 
@@ -55,6 +57,7 @@ func GetUserByID(c *gin.Context) {
 		Email:    user.Email,
 		RoleID:   user.RoleID,
 		RoleName: user.Role.Name,
+		Image:    user.Image,
 	}
 
 	c.JSON(http.StatusOK, gin.H{

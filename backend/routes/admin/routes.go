@@ -56,7 +56,6 @@ func SetupRouter() *gin.Engine {
 		// user routes
 		admin.GET("/users", user.GetAllUsers)
 		admin.GET("/users/:id", user.GetUserByID)
-		admin.DELETE("/users/:id", user.DeleteUser)
 
 		// SubPackage routes
 		admin.POST("/subpackage", subpackage.CreateSubpackage)
